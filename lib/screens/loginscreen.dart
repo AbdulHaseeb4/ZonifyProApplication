@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:zonifypro/screens/admin/admin_dashboard.dart';
+import 'package:zonifypro/screens/pm/pm_dashboard.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,7 +16,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
 
   bool _obscurePassword = true;
-  bool _isSubmitted = false; // <-- NEW FLAG
+  bool _isSubmitted = false;
 
   static const Color gradientStart = Color(0xFF2196F3);
   static const Color gradientEnd = Color(0xFF90CAF9);
@@ -43,13 +44,22 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _login() {
     setState(() {
-      _isSubmitted = true; // <-- SUBMISSION FLAG TRUE
+      _isSubmitted = true;
     });
     if (_formKey.currentState!.validate()) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const AdminDashboard()),
-      );
+      // --- Admin vs PM check
+      if (_emailController.text == "pm@zonifypro.com" &&
+          _passwordController.text == "12345678") {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const PMDashboard()),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const AdminDashboard()),
+        );
+      }
     }
   }
 
@@ -112,7 +122,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     key: _formKey,
                     autovalidateMode: _isSubmitted
                         ? AutovalidateMode.onUserInteraction
-                        : AutovalidateMode.disabled, // <-- KEY CHANGE
+                        : AutovalidateMode.disabled,
                     child: Column(
                       children: [
                         /// Email Field
@@ -182,7 +192,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         SizedBox(height: 20.h),
 
-                        /// Login Button
+                        /// Login Button (icon removed, text centered)
                         Align(
                           alignment: Alignment.center,
                           child: SizedBox(
@@ -196,13 +206,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                                 borderRadius: BorderRadius.circular(30.r),
                               ),
-                              child: ElevatedButton.icon(
-                                icon: Image.asset(
-                                  'assets/icons/login.png',
-                                  width: 20.w,
-                                  height: 20.w,
-                                ),
-                                label: Text(
+                              child: ElevatedButton(
+                                child: Text(
                                   "Login",
                                   style: TextStyle(
                                       color: Colors.white,
@@ -216,7 +221,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(30.r)),
                                 ),
-                                onPressed: _login, // <-- CALL NEW METHOD
+                                onPressed: _login,
                               ),
                             ),
                           ),
