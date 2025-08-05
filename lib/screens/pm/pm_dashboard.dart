@@ -1,10 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import 'pm_home_page.dart';
 import 'pm_alerts_page.dart';
 import 'pm_mail_page.dart';
 import 'pm_profile_page.dart';
+import 'menu_pages/pm_delay_refunds_page.dart';
+import 'menu_pages/pm_check_blacklist_paypal_page.dart';
+import 'menu_pages/reservation/subpages/show_reservation_page.dart';
+
+class PlaceholderPage extends StatelessWidget {
+  final String title;
+  const PlaceholderPage({super.key, required this.title});
+  @override
+  Widget build(BuildContext context) {
+    return Center(child: Text(title, style: const TextStyle(fontSize: 20)));
+  }
+}
 
 class PMDashboard extends StatefulWidget {
   const PMDashboard({super.key});
@@ -15,14 +26,52 @@ class PMDashboard extends StatefulWidget {
 
 class _PMDashboardState extends State<PMDashboard> {
   int _selectedIndex = 0;
-
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  final List<Widget> _pages = const [
-    PMHomePage(),
-    PMAlertsPage(),
-    PMMailPage(),
-    PMProfilePage(),
+  final List<Widget> _pages = [
+    const PMHomePage(), // 0
+    const PMAlertsPage(), // 1
+    const PMMailPage(), // 2
+    const PMProfilePage(), // 3
+    const PMDelayRefundsPage(), // 4
+    const PlaceholderPage(title: "Orders"), // 5 (not used directly)
+    const PlaceholderPage(title: "Products"), // 6 (not used directly)
+    const PlaceholderPage(title: "Reservations"), // 7 (not used directly)
+    const PMProfilePage(changePasswordOnly: true), // 8 change password
+    const PMProfilePage(), // 9 user profile
+    const PlaceholderPage(title: "Create Excel"), // 10
+    const PlaceholderPage(title: "Support"), // 11
+    const PMCheckBlacklistPaypalPage(), // 12
+
+    // Orders subpages
+    const PlaceholderPage(title: "All Orders"), // 13
+    const PlaceholderPage(title: "Ordered"), // 14
+    const PlaceholderPage(title: "Reviewed"), // 15
+    const PlaceholderPage(title: "Review Submitted Pending Refund"), // 16
+    const PlaceholderPage(title: "Review Deleted"), // 17
+    const PlaceholderPage(title: "Refunded"), // 18
+    const PlaceholderPage(title: "On Hold"), // 19
+    const PlaceholderPage(title: "Refunded Pending Refund"), // 20
+    const PlaceholderPage(title: "Cancelled"), // 21
+    const PlaceholderPage(title: "Commissioned"), // 22
+    const PlaceholderPage(title: "Completed"), // 23
+
+    // Products subpages
+    const PlaceholderPage(title: "All Products"), // 24
+    const PlaceholderPage(title: "General"), // 25
+    const PlaceholderPage(title: "Electronics"), // 26
+    const PlaceholderPage(title: "Health & Beauty"), // 27
+    const PlaceholderPage(title: "Baby Products"), // 28
+    const PlaceholderPage(title: "Gaming Devices"), // 29
+    const PlaceholderPage(title: "Fashion (Cloths & Shoes)"), // 30
+    const PlaceholderPage(title: "Mobile Accessories"), // 31
+    const PlaceholderPage(title: "Expensive Products"), // 32
+    const PlaceholderPage(title: "Pet Related"), // 33
+    const PlaceholderPage(title: "Home & Kitchen"), // 34
+
+    // Reservations subpages
+    const PlaceholderPage(title: "Add New Reservation"), // 35
+    const ShowReservationPage(), // 36
   ];
 
   final List<String> _titles = [
@@ -30,17 +79,51 @@ class _PMDashboardState extends State<PMDashboard> {
     "PM Alerts",
     "PM Mail",
     "Profile",
+    "Delay Refunds",
+    "Orders",
+    "Products",
+    "Reservations",
+    "Change Password",
+    "User Profile",
+    "Create Excel",
+    "Support",
+    "Check Blacklisted Paypal",
+    "All Orders",
+    "Ordered",
+    "Reviewed",
+    "Review Submitted Pending Refund",
+    "Review Deleted",
+    "Refunded",
+    "On Hold",
+    "Refunded Pending Refund",
+    "Cancelled",
+    "Commissioned",
+    "Completed",
+    "All Products",
+    "General",
+    "Electronics",
+    "Health & Beauty",
+    "Baby Products",
+    "Gaming Devices",
+    "Fashion (Cloths & Shoes)",
+    "Mobile Accessories",
+    "Expensive Products",
+    "Pet Related",
+    "Home & Kitchen",
+    "Add New Reservation",
+    "Show Reservation",
   ];
 
-  void _onTabTapped(int index) {
+  void _onTabTapped(int index) => setState(() => _selectedIndex = index);
+  void _onDrawerItemTapped(int index) {
     setState(() => _selectedIndex = index);
+    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      extendBodyBehindAppBar: false,
       drawer: _buildSideMenu(),
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(80.h),
@@ -51,10 +134,8 @@ class _PMDashboardState extends State<PMDashboard> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(30),
-              bottomRight: Radius.circular(30),
-            ),
+            borderRadius:
+            BorderRadius.only(bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30)),
           ),
           child: SafeArea(
             child: Padding(
@@ -64,44 +145,21 @@ class _PMDashboardState extends State<PMDashboard> {
                 children: [
                   GestureDetector(
                     onTap: () => _scaffoldKey.currentState!.openDrawer(),
-                    child: Image.asset(
-                      'assets/icons/menu.png',
-                      width: 24.w,
-                      height: 24.w,
-                      color: Colors.white,
-                    ),
+                    child: Image.asset('assets/icons/menu.png',
+                        width: 24.w, height: 24.w, color: Colors.white),
                   ),
-                  Text(
-                    _titles[_selectedIndex],
-                    style: TextStyle(
-                      fontSize: 20.sp,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
+                  Text(_titles[_selectedIndex],
+                      style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w600, color: Colors.white)),
                   PopupMenuButton<String>(
-                    icon: const Icon(Icons.account_circle,
-                        color: Colors.white, size: 32),
+                    icon: const Icon(Icons.account_circle, color: Colors.white, size: 32),
                     color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                     onSelected: (value) {
-                      if (value == 'edit') {
-                        setState(() => _selectedIndex = 3); // Profile tab
-                      } else if (value == 'logout') {
-                        // handle logout
-                      }
+                      if (value == 'edit') setState(() => _selectedIndex = 9);
                     },
                     itemBuilder: (context) => const [
-                      PopupMenuItem<String>(
-                        value: 'edit',
-                        child: Text("Edit Profile"),
-                      ),
-                      PopupMenuItem<String>(
-                        value: 'logout',
-                        child: Text("Logout"),
-                      ),
+                      PopupMenuItem<String>(value: 'edit', child: Text("Edit Profile")),
+                      PopupMenuItem<String>(value: 'logout', child: Text("Logout")),
                     ],
                   ),
                 ],
@@ -110,15 +168,11 @@ class _PMDashboardState extends State<PMDashboard> {
           ),
         ),
       ),
-      body: Padding(
-        padding: EdgeInsets.only(top: 8.h),
-        child: _pages[_selectedIndex],
-      ),
+      body: _pages[_selectedIndex],
       bottomNavigationBar: _buildModernNavBar(),
     );
   }
 
-  /// ----------------- Drawer -----------------
   Widget _buildSideMenu() {
     return Drawer(
       child: SafeArea(
@@ -129,107 +183,113 @@ class _PMDashboardState extends State<PMDashboard> {
               padding: EdgeInsets.all(16.w),
               child: Row(
                 children: [
-                  CircleAvatar(
-                    radius: 28.r,
-                    backgroundImage: const AssetImage('assets/images/profile.png'),
-                  ),
+                  CircleAvatar(radius: 28.r, backgroundImage: const AssetImage('assets/images/profile.png')),
                   SizedBox(width: 12.w),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Sara Khan",
-                          style: TextStyle(
-                              fontSize: 16.sp, fontWeight: FontWeight.bold)),
-                      Text("Project Manager",
-                          style: TextStyle(color: Colors.grey, fontSize: 13.sp)),
+                      Text("Sara Khan", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
+                      Text("Project Manager", style: TextStyle(color: Colors.grey, fontSize: 13.sp)),
                     ],
                   ),
                 ],
               ),
             ),
             Divider(thickness: 1, color: Colors.grey.shade300),
+            _drawerMainItem(Icons.dashboard, "Dashboard", 0),
 
-            /// 1. Dashboard
-            _drawerMainItem(Icons.dashboard, "Dashboard", isActive: true),
-
-            /// 2. Orders (with sub-options)
-            _customExpansionTile(
-              title: "Orders",
-              icon: Icons.shopping_bag_outlined,
-              children: const [
-                {"icon": Icons.remove_red_eye, "label": "All"},
-                {"icon": Icons.remove_red_eye, "label": "Ordered"},
-                {"icon": Icons.remove_red_eye, "label": "Reviewed"},
-                {"icon": Icons.thumbs_up_down, "label": "Review Submitted Pending Refund"},
-                {"icon": Icons.cancel_presentation, "label": "Review Deleted"},
-                {"icon": Icons.money_off, "label": "Refunded"},
-                {"icon": Icons.pause_circle, "label": "On Hold"},
-                {"icon": Icons.refresh, "label": "Refunded Pending Review"},
-                {"icon": Icons.cancel, "label": "Cancelled"},
-                {"icon": Icons.credit_card, "label": "Commissioned"},
-                {"icon": Icons.check_circle, "label": "Completed"},
+            /// Orders (highlight if any subpage active)
+            ExpansionTile(
+              initiallyExpanded: _selectedIndex >= 13 && _selectedIndex <= 23,
+              leading: Icon(Icons.shopping_bag_outlined,
+                  color: (_selectedIndex >= 13 && _selectedIndex <= 23)
+                      ? Colors.green
+                      : Colors.grey.shade600),
+              title: Text("Orders",
+                  style: TextStyle(
+                      fontWeight: (_selectedIndex >= 13 && _selectedIndex <= 23)
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                      color: (_selectedIndex >= 13 && _selectedIndex <= 23)
+                          ? Colors.green
+                          : Colors.black87)),
+              children: [
+                _drawerSubItem(Icons.remove_red_eye_outlined, "All", 13),
+                _drawerSubItem(Icons.remove_red_eye_outlined, "Ordered", 14),
+                _drawerSubItem(Icons.remove_red_eye_outlined, "Reviewed", 15),
+                _drawerSubItem(Icons.thumb_up_alt_outlined, "Review Submitted Pending Refund", 16),
+                _drawerSubItem(Icons.cancel_outlined, "Review Deleted", 17),
+                _drawerSubItem(Icons.assignment_returned_outlined, "Refunded", 18),
+                _drawerSubItem(Icons.pan_tool_outlined, "On Hold", 19),
+                _drawerSubItem(Icons.refresh_outlined, "Refunded Pending Refund", 20),
+                _drawerSubItem(Icons.close, "Cancelled", 21),
+                _drawerSubItem(Icons.handshake_outlined, "Commissioned", 22),
+                _drawerSubItem(Icons.done_all, "Completed", 23),
               ],
             ),
 
-            /// 3. Products (with sub-options)
-            _customExpansionTile(
-              title: "Products",
-              icon: Icons.inventory_2_outlined,
-              children: const [
-                {"icon": Icons.inventory, "label": "All Products"},
-                {"icon": Icons.category, "label": "General"},
-                {"icon": Icons.devices_other, "label": "Electronics"},
-                {"icon": Icons.health_and_safety, "label": "Health & Beauty"},
-                {"icon": Icons.child_care, "label": "Baby Products"},
-                {"icon": Icons.sports_esports, "label": "Gaming Devices"},
-                {"icon": Icons.checkroom, "label": "Fashion (Cloths & Shoes)"},
-                {"icon": Icons.phone_android, "label": "Mobile Accessories"},
-                {"icon": Icons.attach_money, "label": "Expensive Products"},
-                {"icon": Icons.pets, "label": "Pet Related"},
-                {"icon": Icons.kitchen, "label": "Home & Kitchen"},
+            /// Products (highlight if any subpage active)
+            ExpansionTile(
+              initiallyExpanded: _selectedIndex >= 24 && _selectedIndex <= 34,
+              leading: Icon(Icons.inventory_2_outlined,
+                  color: (_selectedIndex >= 24 && _selectedIndex <= 34)
+                      ? Colors.green
+                      : Colors.grey.shade600),
+              title: Text("Products",
+                  style: TextStyle(
+                      fontWeight: (_selectedIndex >= 24 && _selectedIndex <= 34)
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                      color: (_selectedIndex >= 24 && _selectedIndex <= 34)
+                          ? Colors.green
+                          : Colors.black87)),
+              children: [
+                _drawerSubItem(Icons.inventory, "All Products", 24),
+                _drawerSubItem(Icons.category, "General", 25),
+                _drawerSubItem(Icons.devices_other, "Electronics", 26),
+                _drawerSubItem(Icons.spa_outlined, "Health & Beauty", 27),
+                _drawerSubItem(Icons.child_friendly, "Baby Products", 28),
+                _drawerSubItem(Icons.videogame_asset_outlined, "Gaming Devices", 29),
+                _drawerSubItem(Icons.checkroom_outlined, "Fashion (Cloths & Shoes)", 30),
+                _drawerSubItem(Icons.phone_android_outlined, "Mobile Accessories", 31),
+                _drawerSubItem(Icons.attach_money_outlined, "Expensive Products", 32),
+                _drawerSubItem(Icons.pets_outlined, "Pet Related", 33),
+                _drawerSubItem(Icons.kitchen_outlined, "Home & Kitchen", 34),
               ],
             ),
 
-            /// 4. Reservations (with sub-options)
-            _customExpansionTile(
-              title: "Reservations",
-              icon: Icons.event_note,
-              children: const [
-                {"icon": Icons.add, "label": "Add New"},
-                {"icon": Icons.remove_red_eye, "label": "Show"},
+            /// Reservations (highlight if any subpage active)
+            ExpansionTile(
+              initiallyExpanded: _selectedIndex >= 35 && _selectedIndex <= 36,
+              leading: Icon(Icons.event_note,
+                  color: (_selectedIndex >= 35 && _selectedIndex <= 36)
+                      ? Colors.green
+                      : Colors.grey.shade600),
+              title: Text("Reservations",
+                  style: TextStyle(
+                      fontWeight: (_selectedIndex >= 35 && _selectedIndex <= 36)
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                      color: (_selectedIndex >= 35 && _selectedIndex <= 36)
+                          ? Colors.green
+                          : Colors.black87)),
+              children: [
+                _drawerSubItem(Icons.add, "Add New", 35),
+                _drawerSubItem(Icons.remove_red_eye_outlined, "Show", 36),
               ],
             ),
 
-            /// 5. Change Password
-            _drawerMainItem(Icons.lock, "Change Password"),
+            _drawerMainItem(Icons.lock, "Change Password", 8),
+            _drawerMainItem(Icons.person_outline, "User Profile", 9),
+            _drawerMainItem(Icons.table_view, "Create Excel", 10),
+            _drawerMainItem(Icons.support_agent, "Support", 11),
+            _drawerMainItem(Icons.payment, "Check Blacklisted Paypal", 12),
+            _drawerMainItem(Icons.timer_off, "Delay Refunds", 4),
 
-            /// 6. User Profile
-            _drawerMainItem(Icons.person_outline, "User Profile"),
-
-            /// 7. Create Excel
-            _drawerMainItem(Icons.table_view, "Create Excel"),
-
-            /// 8. Support
-            _drawerMainItem(Icons.support_agent, "Support"),
-
-            /// 9. Check Blacklisted Paypal
-            _drawerMainItem(Icons.payment, "Check Blacklisted Paypal"),
-
-            /// 10. Delay Refunds
-            _drawerMainItem(Icons.timer_off, "Delay Refunds"),
-
-            /// 11. Logout
-            _drawerMainItem(Icons.logout, "Logout"),
-
-            Divider(thickness: 1, color: Colors.grey.shade300),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 20.h),
-              child: Center(
-                child: Text(
-                  "ZONIFYPRO.COM",
-                  style: TextStyle(color: Colors.grey.shade400, fontSize: 12.sp),
-                ),
-              ),
+            ListTile(
+              leading: const Icon(Icons.logout),
+              title: const Text("Logout"),
+              onTap: () {},
             ),
           ],
         ),
@@ -237,62 +297,39 @@ class _PMDashboardState extends State<PMDashboard> {
     );
   }
 
-  Widget _drawerMainItem(IconData icon, String title, {bool isActive = false}) {
+  Widget _drawerMainItem(IconData icon, String title, int index) {
+    bool isActive = _selectedIndex == index;
     return Container(
       decoration: isActive
           ? const BoxDecoration(
-        border: Border(
-          left: BorderSide(color: Colors.green, width: 4),
-        ),
+        border: Border(left: BorderSide(color: Colors.green, width: 4)),
         color: Color.fromARGB(15, 76, 175, 80),
       )
           : null,
       child: ListTile(
-        leading: Icon(icon,
-            color: isActive ? Colors.green : Colors.grey.shade600, size: 22),
-        title: Text(
-          title,
-          style: TextStyle(
-            color: isActive ? Colors.green : Colors.black87,
-            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-          ),
-        ),
-        onTap: () {
-          // TODO: Handle navigation for each item
-        },
-      ),
-    );
-  }
-
-  Widget _customExpansionTile({
-    required String title,
-    required IconData icon,
-    required List<Map<String, dynamic>> children,
-  }) {
-    return Theme(
-      data: ThemeData().copyWith(dividerColor: Colors.transparent),
-      child: ExpansionTile(
-        leading: Icon(icon, color: Colors.grey.shade700),
+        leading: Icon(icon, color: isActive ? Colors.green : Colors.grey.shade600),
         title: Text(title,
-            style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600)),
-        iconColor: Colors.green,
-        collapsedIconColor: Colors.grey,
-        children: children.map((child) {
-          return ListTile(
-            leading: Icon(child["icon"] as IconData,
-                size: 20, color: Colors.grey.shade600),
-            title: Text(child["label"] as String,
-                style: TextStyle(fontSize: 14.sp, color: Colors.black87)),
-            onTap: () {
-              // TODO: Handle submenu navigation
-            },
-          );
-        }).toList(),
+            style: TextStyle(
+                color: isActive ? Colors.green : Colors.black87,
+                fontWeight: isActive ? FontWeight.bold : FontWeight.normal)),
+        onTap: () => _onDrawerItemTapped(index),
       ),
     );
   }
 
-  /// ----------------- Bottom Navigation -----------------
+  Widget _drawerSubItem(IconData icon, String title, int index) {
+    bool isActive = _selectedIndex == index;
+    return ListTile(
+      contentPadding: EdgeInsets.only(left: 72.w, right: 16.w),
+      leading: Icon(icon, color: isActive ? Colors.green : Colors.grey.shade600),
+      title: Text(title,
+          style: TextStyle(
+              color: isActive ? Colors.green : Colors.black87,
+              fontWeight: isActive ? FontWeight.bold : FontWeight.normal)),
+      onTap: () => _onDrawerItemTapped(index),
+    );
+  }
+
   Widget _buildModernNavBar() {
     return Container(
       margin: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 12.h),
@@ -315,7 +352,7 @@ class _PMDashboardState extends State<PMDashboard> {
           backgroundColor: Colors.white,
           selectedItemColor: Colors.green,
           unselectedItemColor: Colors.grey,
-          currentIndex: _selectedIndex,
+          currentIndex: _selectedIndex > 3 ? 0 : _selectedIndex,
           onTap: _onTabTapped,
           showSelectedLabels: false,
           showUnselectedLabels: false,
@@ -341,10 +378,7 @@ class _PMDashboardState extends State<PMDashboard> {
               width: 6,
               height: 6,
               margin: const EdgeInsets.only(top: 2),
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.green,
-              ),
+              decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.green),
             ),
         ],
       ),
