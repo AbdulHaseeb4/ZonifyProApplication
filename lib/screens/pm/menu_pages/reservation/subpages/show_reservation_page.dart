@@ -1,27 +1,30 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-class ReservationStyledCardPage extends StatefulWidget {
-  const ReservationStyledCardPage({super.key});
+class ShowReservationPage extends StatefulWidget {
+  const ShowReservationPage({super.key});
 
   @override
-  State<ReservationStyledCardPage> createState() =>
-      _ReservationStyledCardPageState();
+  State<ShowReservationPage> createState() => _ShowReservationPageState();
 }
 
-class _ReservationStyledCardPageState extends State<ReservationStyledCardPage> {
-  final List<Map<String, dynamic>> reservations = [
+class _ShowReservationPageState extends State<ShowReservationPage> {
+  List<Map<String, dynamic>> reservations = [
     {
-      "seller": "Seller 1",
-      "productId": "PRD-100-SUPER-LONG-PRODUCT-ID-EXAMPLE-1234567890",
-      "orderId": "ORD-1000-EXTREMELY-LONG-ORDER-ID-EXAMPLE-1234567890",
-      "orderDate": "2025-08-01",
-      "image": "assets/images/profile.png", // use your product image here
-      "remaining": const Duration(hours: 1, minutes: 15, seconds: 45),
-    }
+      "sellerName": "Ali Hassan",
+      "reservationId":
+      "13499317-VERY-LONG-RESERVATION-ID-EXAMPLE-ABCDEFG123456",
+      "productId":
+      "PRD-2557309-SUPER-LONG-PRODUCT-ID-EXAMPLE-1234567890-ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+      "image": "assets/images/sample.jpeg", // Replace with actual image
+      "remaining": const Duration(hours: 2),
+    },
   ];
 
+  /// To track which field is expanded for which card
+  final Map<int, Set<String>> expandedFields = {};
   Timer? _timer;
 
   @override
@@ -29,12 +32,17 @@ class _ReservationStyledCardPageState extends State<ReservationStyledCardPage> {
     super.initState();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
-        for (var r in reservations) {
+        reservations = reservations
+            .map((r) {
           final Duration rem = r["remaining"];
           if (rem > Duration.zero) {
-            r["remaining"] = rem - const Duration(seconds: 1);
+            return {...r, "remaining": rem - const Duration(seconds: 1)};
           }
-        }
+          return null;
+        })
+            .where((r) => r != null)
+            .cast<Map<String, dynamic>>()
+            .toList();
       });
     });
   }
@@ -56,7 +64,9 @@ class _ReservationStyledCardPageState extends State<ReservationStyledCardPage> {
       backgroundColor: const Color(0xFFF4F6F8),
       body: Padding(
         padding: EdgeInsets.all(16.w),
-        child: ListView.builder(
+        child: reservations.isEmpty
+            ? _buildEmptyState()
+            : ListView.builder(
           itemCount: reservations.length,
           itemBuilder: (context, index) {
             final r = reservations[index];
@@ -69,135 +79,228 @@ class _ReservationStyledCardPageState extends State<ReservationStyledCardPage> {
 
   Widget _buildReservationCard(Map<String, dynamic> r, int index) {
     final Duration remaining = r["remaining"];
+    final bool isCritical = remaining.inMinutes < 10;
 
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
-      elevation: 3,
-      margin: EdgeInsets.only(bottom: 16.h),
-      child: Padding(
-        padding: EdgeInsets.all(16.w),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            /// ---- Header ----
-            Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor: Colors.green.shade100,
-                  child: Text("${index + 1}",
-                      style: const TextStyle(color: Colors.green)),
+      margin: EdgeInsets.only(bottom: 20.h),
+      elevation: 6,
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          /// --- Top Image ---
+          Stack(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  _showImagePreview(context, r["image"]);
+                },
+                child: AspectRatio(
+                  aspectRatio: 16 / 9,
+                  child: Image.asset(
+                    r["image"],
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-                SizedBox(width: 10.w),
-                Expanded(
-                  child: Text(r["seller"],
-                      style: TextStyle(
-                          fontSize: 16.sp, fontWeight: FontWeight.bold)),
-                ),
-                Container(
+              ),
+              Positioned(
+                top: 12.h,
+                right: 12.w,
+                child: Container(
                   padding:
                   EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                        colors: [Colors.orange, Colors.deepOrange]),
+                    color: isCritical
+                        ? Colors.red.withOpacity(0.9)
+                        : Colors.black.withOpacity(0.7),
                     borderRadius: BorderRadius.circular(20.r),
                   ),
-                  child: Text(_formatDuration(remaining),
-                      style: const TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold)),
+                  child: Text(
+                    _formatDuration(remaining),
+                    style: const TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ],
-            ),
-
-            SizedBox(height: 16.h),
-
-            /// ---- Main Image ----
-            Center(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(12.r),
-                child: Image.asset(r["image"], width: 150.w, height: 100.h),
               ),
-            ),
+            ],
+          ),
 
-            SizedBox(height: 16.h),
-
-            /// ---- Details ----
-            _buildDetailRow(Icons.qr_code, "Product ID", r["productId"]),
-            SizedBox(height: 8.h),
-            _buildDetailRow(Icons.receipt_long, "Order ID", r["orderId"]),
-            SizedBox(height: 8.h),
-            _buildDetailRow(Icons.calendar_today, "Order Date", r["orderDate"],
-                expandArrow: false),
-
-            SizedBox(height: 16.h),
-
-            /// ---- Bottom Buttons ----
-            Row(
+          /// --- Bottom Details ---
+          Padding(
+            padding: EdgeInsets.all(16.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        padding: EdgeInsets.symmetric(vertical: 12.h),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.r))),
-                    onPressed: () {},
-                    child: const Text("Create Order"),
-                  ),
+                /// ---- Seller Name ----
+                Row(
+                  children: [
+                    const Icon(Icons.person_outline,
+                        color: Colors.blueAccent, size: 20),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: Text.rich(
+                        TextSpan(
+                          text: "Seller : ",
+                          style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14.sp,
+                              color: Colors.black),
+                          children: [
+                            TextSpan(
+                              text: r["sellerName"] ?? "Adeel C",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.normal,
+                                  fontSize: 14.sp,
+                                  color: Colors.black87),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(width: 10.w),
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        padding: EdgeInsets.symmetric(vertical: 12.h),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.r))),
-                    onPressed: () {},
-                    child: const Text("Release"),
-                  ),
-                ),
+                SizedBox(height: 10.h),
+
+                /// ---- Reservation & Product IDs ----
+                _buildDetailRow(index, "reservationId",
+                    Icons.confirmation_num_outlined, "Reservation ID",
+                    r["reservationId"]),
+                SizedBox(height: 10.h),
+                _buildDetailRow(index, "productId", Icons.qr_code, "Product ID",
+                    r["productId"]),
+                SizedBox(height: 16.h),
+
+                /// ---- Buttons ----
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blueAccent,
+                          padding: EdgeInsets.symmetric(vertical: 12.h),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.r)),
+                        ),
+                        onPressed: () {},
+                        child: const Text("Create Order",
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                    ),
+                    SizedBox(width: 10.w),
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                          padding: EdgeInsets.symmetric(vertical: 12.h),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.r)),
+                        ),
+                        onPressed: () {},
+                        child: const Text("Release",
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                    ),
+                  ],
+                )
               ],
-            )
-          ],
-        ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildDetailRow(IconData icon, String label, String value,
-      {bool expandArrow = true}) {
-    bool isExpanded = false; // you can implement expand logic per field
+  Widget _buildDetailRow(int index, String fieldKey, IconData icon,
+      String label, String value) {
+    bool isExpanded = expandedFields[index]?.contains(fieldKey) ?? false;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 20, color: Colors.blue),
+        Icon(icon, size: 20, color: Colors.deepPurple),
         SizedBox(width: 8.w),
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label,
-                  style: TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13.sp,
-                      color: Colors.green.shade700)),
-              Text(
-                value,
-                maxLines: isExpanded ? null : 1,
-                overflow: isExpanded
-                    ? TextOverflow.visible
-                    : TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 14.sp),
-              ),
-            ],
+          child: AnimatedSize(
+            duration: const Duration(milliseconds: 300),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label,
+                    style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13.sp,
+                        color: Colors.black)),
+                Text(
+                  value,
+                  maxLines: isExpanded ? null : 1,
+                  overflow:
+                  isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 14.sp, color: Colors.black87),
+                ),
+              ],
+            ),
           ),
         ),
-        if (expandArrow)
-          Icon(Icons.keyboard_arrow_down, color: Colors.grey, size: 18),
         IconButton(
-            icon: const Icon(Icons.copy, size: 18, color: Colors.grey),
-            onPressed: () {})
+          icon: Icon(
+              isExpanded
+                  ? Icons.keyboard_arrow_up
+                  : Icons.keyboard_arrow_down,
+              size: 18,
+              color: Colors.orange),
+          onPressed: () {
+            setState(() {
+              expandedFields[index] ??= {};
+              if (isExpanded) {
+                expandedFields[index]!.remove(fieldKey);
+              } else {
+                expandedFields[index]!.add(fieldKey);
+              }
+            });
+          },
+        ),
+        IconButton(
+          icon: const Icon(Icons.copy, size: 18, color: Colors.green),
+          onPressed: () {
+            Clipboard.setData(ClipboardData(text: value));
+            ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("$label copied to clipboard")));
+          },
+        ),
       ],
+    );
+  }
+
+  void _showImagePreview(BuildContext context, String imagePath) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        return Dialog(
+          insetPadding: EdgeInsets.all(10.w),
+          child: InteractiveViewer(
+            panEnabled: true,
+            minScale: 1,
+            maxScale: 4,
+            child: Image.asset(imagePath, fit: BoxFit.contain),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.event_busy, size: 64.sp, color: Colors.grey.shade400),
+          SizedBox(height: 12.h),
+          Text("No reservations found",
+              style: TextStyle(fontSize: 16.sp, color: Colors.grey.shade600)),
+        ],
+      ),
     );
   }
 }

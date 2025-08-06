@@ -68,6 +68,7 @@ flutter:
     - assets/images/logo1.png
     - assets/images/profile.png
     - assets/images/bg.jpg
+    - assets/images/sample.jpeg
     - assets/images/bg.png
     - assets/icons/app_icon.png
     - assets/icons/dashboard.png
