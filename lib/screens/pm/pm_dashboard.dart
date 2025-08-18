@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:zonifypro/screens/pm/menu_pages/products/pm_products_page.dart';
 import 'pm_home_page.dart';
 import 'pm_alerts_page.dart';
 import 'pm_mail_page.dart';
@@ -7,6 +8,8 @@ import 'pm_profile_page.dart';
 import 'menu_pages/pm_delay_refunds_page.dart';
 import 'menu_pages/pm_check_blacklist_paypal_page.dart';
 import 'menu_pages/reservation/subpages/show_reservation_page.dart';
+import 'menu_pages/reservation/subpages/add_new_reservation_page.dart';
+
 
 class PlaceholderPage extends StatelessWidget {
   final String title;
@@ -57,20 +60,22 @@ class _PMDashboardState extends State<PMDashboard> {
     const PlaceholderPage(title: "Completed"), // 23
 
     // Products subpages
-    const PlaceholderPage(title: "All Products"), // 24
-    const PlaceholderPage(title: "General"), // 25
-    const PlaceholderPage(title: "Electronics"), // 26
-    const PlaceholderPage(title: "Health & Beauty"), // 27
-    const PlaceholderPage(title: "Baby Products"), // 28
-    const PlaceholderPage(title: "Gaming Devices"), // 29
-    const PlaceholderPage(title: "Fashion (Cloths & Shoes)"), // 30
-    const PlaceholderPage(title: "Mobile Accessories"), // 31
-    const PlaceholderPage(title: "Expensive Products"), // 32
-    const PlaceholderPage(title: "Pet Related"), // 33
-    const PlaceholderPage(title: "Home & Kitchen"), // 34
+    const PMProductsPage(category: "All Products"), // 24
+    const PMProductsPage(category: "General"),      // 25
+    const PMProductsPage(category: "Electronics"),  // 26
+    const PMProductsPage(category: "Health & Beauty"), // 27
+    const PMProductsPage(category: "Baby Products"), // 28
+    const PMProductsPage(category: "Gaming Devices"), // 29
+    const PMProductsPage(category: "Fashion (Cloths & Shoes)"), // 30
+    const PMProductsPage(category: "Mobile Accessories"), // 31
+    const PMProductsPage(category: "Expensive Products"), // 32
+    const PMProductsPage(category: "Pet Related"), // 33
+    const PMProductsPage(category: "Home & Kitchen"), // 34
+
+
 
     // Reservations subpages
-    const PlaceholderPage(title: "Add New Reservation"), // 35
+    const AddNewReservationPage(), // 35
     const ShowReservationPage(), // 36
   ];
 
