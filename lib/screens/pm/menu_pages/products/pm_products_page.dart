@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:zonifypro/screens/pm/menu_pages/products/product_detail_page.dart';
+import 'package:zonifypro/screens/pm/menu_pages/reservation/show_reservation_page.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class PMProductsPage extends StatefulWidget {
@@ -15,18 +17,30 @@ class _PMProductsPageState extends State<PMProductsPage> {
   String searchKeyword = '';
   String selectedMarket = "Select Market";
   String selectedType = "Select Type";
+  String selectedCategory = "All"; // 👈 filter chip state
+
+  // ✅ Fixed categories
+  final List<String> categories = [
+    "All",
+    "General",
+    "Electronics",
+    "Health & Beauty",
+    "Baby Products",
+    "Gaming Devices",
+    "Fashion (Cloths & Shoes)",
+    "Mobile Accessories",
+    "Expensive Products",
+    "Pet Related",
+    "Home & Kitchen",
+  ];
 
   final List<String> marketOptions = [
-    'Select Market', 'All', 'US', 'UK', 'DE', 'IT', 'CA', 'ES', 'AUS', 'JAPAN', 'KSA', 'UAE', 'General', 'FR',
-    'Mexico', 'Russia', 'Sweden', 'Netherland', 'US-High Commission', 'UK-High Commission', 'Walmart-US',
-    'Turkey', 'Kindle Books', 'ETSY', 'Singapore', 'India', 'Kindle US', 'eBay US', 'Walmart-UK', 'Poland',
-    'TikTok US', 'Walmart-CA', 'Ali Express', 'Temu-US', 'Otto-DE', 'Temu-UK', 'SHEIN-US', 'Temu-DE',
-    'Google Reviews UK', 'Taobao', 'Google Reviews US', 'TikTok UK', 'Wayfair UK', 'Wayfair US', 'Brazil',
+    'Select Market', 'All', 'US', 'UK', 'DE', 'CA', 'AUS', 'UAE', 'FR', 'IN',
   ];
 
   final List<String> typeOptions = [
-    'Select Type', 'All', 'Text Review', 'Top Reviewer', 'No review', 'Feedback',
-    'Rating', 'RAS', 'RAO', 'Seller Testing', 'Pic Review', 'Vid Review',
+    'Select Type', 'All', 'Text Review', 'Top Reviewer', 'No review',
+    'Feedback', 'Rating', 'RAS', 'RAO', 'Seller Testing', 'Pic Review', 'Vid Review',
   ];
 
   Map<String, IconData> getTypeIcons() => {
@@ -51,15 +65,10 @@ class _PMProductsPageState extends State<PMProductsPage> {
     'UK': Icons.flag_circle,
     'DE': Icons.language,
     'FR': Icons.map,
-    'IT': Icons.account_balance,
     'CA': Icons.map_outlined,
-    'General': Icons.dashboard_customize,
-    'Kindle Books': Icons.book_online,
-    'ETSY': Icons.storefront,
-    'eBay US': Icons.shopping_cart,
-    'Walmart-US': Icons.store,
-    'Temu-US': Icons.shopping_bag,
-    'Ali Express': Icons.fireplace,
+    'AUS': Icons.flag_outlined,
+    'UAE': Icons.flag_outlined,
+    'IN': Icons.flag_outlined,
   };
 
   final List<double> _colW = <double>[
@@ -79,10 +88,8 @@ class _PMProductsPageState extends State<PMProductsPage> {
     SizedBox(width: _colW[i], child: Center(child: child)),
   );
 
-  // 🔹 Function to highlight search matches
   Widget _highlightText(String text) {
     if (searchKeyword.isEmpty) return Text(text, style: TextStyle(fontSize: 12.sp));
-
     final lowerText = text.toLowerCase();
     final lowerSearch = searchKeyword.toLowerCase();
 
@@ -96,23 +103,17 @@ class _PMProductsPageState extends State<PMProductsPage> {
 
     while ((index = lowerText.indexOf(lowerSearch, start)) != -1) {
       if (index > start) {
-        spans.add(TextSpan(
-            text: text.substring(start, index),
-            style: TextStyle(fontSize: 12.sp, color: Colors.black)));
+        spans.add(TextSpan(text: text.substring(start, index), style: const TextStyle(color: Colors.black)));
       }
       spans.add(TextSpan(
           text: text.substring(index, index + lowerSearch.length),
-          style: TextStyle(fontSize: 12.sp, backgroundColor: Colors.yellow, color: Colors.black)));
+          style: const TextStyle(backgroundColor: Colors.yellow, color: Colors.black)));
       start = index + lowerSearch.length;
     }
-
     if (start < text.length) {
-      spans.add(TextSpan(
-          text: text.substring(start),
-          style: TextStyle(fontSize: 12.sp, color: Colors.black)));
+      spans.add(TextSpan(text: text.substring(start), style: const TextStyle(color: Colors.black)));
     }
-
-    return RichText(text: TextSpan(children: spans));
+    return RichText(text: TextSpan(style: TextStyle(fontSize: 12.sp), children: spans));
   }
 
   @override
@@ -120,14 +121,47 @@ class _PMProductsPageState extends State<PMProductsPage> {
     return Scaffold(
       backgroundColor: const Color(0xfff5f6f8),
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(16.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildSearchBar(),
-              SizedBox(height: 14.h),
-              Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            /// Search
+            Padding(
+              padding: EdgeInsets.all(16.w),
+              child: _buildSearchBar(),
+            ),
+
+            /// Filter Chips
+            SizedBox(
+              height: 40.h,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: EdgeInsets.symmetric(horizontal: 12.w),
+                itemCount: categories.length,
+                separatorBuilder: (_, __) => SizedBox(width: 8.w),
+                itemBuilder: (context, index) {
+                  final cat = categories[index];
+                  final isActive = selectedCategory == cat;
+                  return ChoiceChip(
+                    label: Text(cat, style: TextStyle(fontSize: 12.sp)),
+                    selected: isActive,
+                    selectedColor: Colors.green.shade400,
+                    backgroundColor: Colors.grey.shade200,
+                    labelStyle: TextStyle(
+                      color: isActive ? Colors.white : Colors.black87,
+                      fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                    ),
+                    onSelected: (_) => setState(() => selectedCategory = cat),
+                  );
+                },
+              ),
+            ),
+
+            SizedBox(height: 16.h),
+
+            /// Dropdown filters
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: Row(
                 children: [
                   Expanded(
                     child: _buildDropdown(
@@ -148,10 +182,18 @@ class _PMProductsPageState extends State<PMProductsPage> {
                   ),
                 ],
               ),
-              SizedBox(height: 24.h),
-              Expanded(child: _buildProductTable()),
-            ],
-          ),
+            ),
+
+            SizedBox(height: 16.h),
+
+            /// Table
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: _buildProductTable(),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -163,13 +205,7 @@ class _PMProductsPageState extends State<PMProductsPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(28.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 3,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 3, offset: const Offset(0, 2))],
       ),
       child: TextField(
         controller: _searchController,
@@ -204,21 +240,13 @@ class _PMProductsPageState extends State<PMProductsPage> {
     required Map<String, IconData> iconMap,
   }) {
     return DropdownMenuTheme(
-      data: DropdownMenuThemeData(
-        textStyle: TextStyle(fontSize: 13.sp, color: Colors.black87),
-      ),
+      data: DropdownMenuThemeData(textStyle: TextStyle(fontSize: 13.sp, color: Colors.black87)),
       child: Container(
         height: 36.h,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(28.r),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 3,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 3, offset: const Offset(0, 2))],
         ),
         padding: EdgeInsets.symmetric(horizontal: 14.w),
         child: DropdownButtonHideUnderline(
@@ -260,139 +288,32 @@ class _PMProductsPageState extends State<PMProductsPage> {
     const double spacing = 18.0;
     final double minTableWidth = _colW.reduce((a, b) => a + b) + spacing * (_colW.length - 1);
 
+    /// ✅ Dummy Products List
     List<Map<String, dynamic>> allProducts = [
-      {
-        'category': 'Gaming Devices',
-        'seller': '124',
-        'market': 'US',
-        'saleLimit': '40',
-        'todayRemain': '20',
-        'totalRemain': '25',
-        'commission': '1500',
-        'keywords': 'Gaming Mouse',
-        'link': 'https://example.com/gaming/1',
-        'productId': 'edb510d7-d741-43a8-a249-a8e450b1f894',
-      },
-      {
-        'category': 'Health & Beauty',
-        'seller': '349',
-        'market': 'UK',
-        'saleLimit': '30',
-        'todayRemain': '15',
-        'totalRemain': '18',
-        'commission': '1200',
-        'keywords': 'Face Wash',
-        'link': 'https://example.com/health/1',
-        'productId': '2934aaad-1b94-4c06-bb72-975a6c63a32c',
-      },
-      {
-        'category': 'Fashion (Cloths & Shoes)',
-        'seller': '789',
-        'market': 'DE',
-        'saleLimit': '50',
-        'todayRemain': '28',
-        'totalRemain': '30',
-        'commission': '1700',
-        'keywords': 'Sneakers',
-        'link': 'https://example.com/fashion/1',
-        'productId': '1a37ca6d-98f4-4641-94ce-d61e8b167160',
-      },
-      {
-        'category': 'Electronics',
-        'seller': '56',
-        'market': 'CA',
-        'saleLimit': '35',
-        'todayRemain': '17',
-        'totalRemain': '20',
-        'commission': '1300',
-        'keywords': 'Bluetooth Speaker',
-        'link': 'https://example.com/electronics/1',
-        'productId': '7ef270e3-daba-469b-b275-ef49f8986127',
-      },
-      {
-        'category': 'Mobile Accessories',
-        'seller': '471',
-        'market': 'IN',
-        'saleLimit': '60',
-        'todayRemain': '40',
-        'totalRemain': '50',
-        'commission': '2000',
-        'keywords': 'Phone Case',
-        'link': 'https://example.com/mobile/1',
-        'productId': 'ea6d5a0d-4510-4ddf-b995-ced0132ba17e',
-      },
-      {
-        'category': 'Baby Products',
-        'seller': '867',
-        'market': 'AUS',
-        'saleLimit': '25',
-        'todayRemain': '10',
-        'totalRemain': '12',
-        'commission': '1100',
-        'keywords': 'Baby Shampoo',
-        'link': 'https://example.com/baby/1',
-        'productId': '6c11d7ae-641b-4ebc-9b12-cfbf30cabf89',
-      },
-      {
-        'category': 'Home & Kitchen',
-        'seller': '320',
-        'market': 'UAE',
-        'saleLimit': '70',
-        'todayRemain': '50',
-        'totalRemain': '65',
-        'commission': '2100',
-        'keywords': 'Cookware Set',
-        'link': 'https://example.com/home/1',
-        'productId': 'd3d43156-b3d5-4e1a-bec8-d73fdd339333',
-      },
-      {
-        'category': 'Books & Education',
-        'seller': '901',
-        'market': 'UK',
-        'saleLimit': '15',
-        'todayRemain': '9',
-        'totalRemain': '10',
-        'commission': '900',
-        'keywords': 'Educational Book',
-        'link': 'https://example.com/books/1',
-        'productId': '31ddc4fb-ec39-4df4-a14b-87b8979f1c3f',
-      },
-      {
-        'category': 'Fitness',
-        'seller': '223',
-        'market': 'US',
-        'saleLimit': '20',
-        'todayRemain': '10',
-        'totalRemain': '15',
-        'commission': '1800',
-        'keywords': 'Resistance Band',
-        'link': 'https://example.com/fitness/1',
-        'productId': 'ffb6e36c-9c2b-4dc2-bbcf-1fca3a2a7e3e',
-      },
-      {
-        'category': 'Toys',
-        'seller': '776',
-        'market': 'FR',
-        'saleLimit': '45',
-        'todayRemain': '25',
-        'totalRemain': '30',
-        'commission': '1600',
-        'keywords': 'Educational Toy',
-        'link': 'https://example.com/toys/1',
-        'productId': 'b47b5c23-e928-404f-8bd7-97db95f86fd9',
-      },
+      {"category": "General", "seller": "101", "market": "US", "saleLimit": "30", "todayRemain": "15", "totalRemain": "20", "commission": "1000", "keywords": "General Item", "link": "https://example.com/general", "productId": "GEN-001"},
+      {"category": "Electronics", "seller": "102", "market": "UK", "saleLimit": "40", "todayRemain": "20", "totalRemain": "25", "commission": "1500", "keywords": "Bluetooth Speaker", "link": "https://example.com/electronics", "productId": "ELE-001"},
+      {"category": "Health & Beauty", "seller": "103", "market": "DE", "saleLimit": "25", "todayRemain": "10", "totalRemain": "15", "commission": "900", "keywords": "Face Wash", "link": "https://example.com/health", "productId": "HB-001"},
+      {"category": "Baby Products", "seller": "104", "market": "CA", "saleLimit": "20", "todayRemain": "8", "totalRemain": "12", "commission": "800", "keywords": "Baby Shampoo", "link": "https://example.com/baby", "productId": "BABY-001"},
+      {"category": "Gaming Devices", "seller": "105", "market": "AUS", "saleLimit": "50", "todayRemain": "30", "totalRemain": "40", "commission": "2000", "keywords": "Gaming Mouse", "link": "https://example.com/gaming", "productId": "GAME-001"},
+      {"category": "Fashion (Cloths & Shoes)", "seller": "106", "market": "UAE", "saleLimit": "60", "todayRemain": "35", "totalRemain": "45", "commission": "2200", "keywords": "Sneakers", "link": "https://example.com/fashion", "productId": "FASH-001"},
+      {"category": "Mobile Accessories", "seller": "107", "market": "FR", "saleLimit": "35", "todayRemain": "18", "totalRemain": "22", "commission": "1200", "keywords": "Phone Case", "link": "https://example.com/mobile", "productId": "MOB-001"},
+      {"category": "Expensive Products", "seller": "108", "market": "IN", "saleLimit": "10", "todayRemain": "5", "totalRemain": "7", "commission": "5000", "keywords": "Luxury Watch", "link": "https://example.com/expensive", "productId": "EXP-001"},
+      {"category": "Pet Related", "seller": "109", "market": "US", "saleLimit": "15", "todayRemain": "7", "totalRemain": "10", "commission": "700", "keywords": "Pet Food", "link": "https://example.com/pet", "productId": "PET-001"},
+      {"category": "Home & Kitchen", "seller": "110", "market": "UK", "saleLimit": "45", "todayRemain": "25", "totalRemain": "30", "commission": "1600", "keywords": "Cookware Set", "link": "https://example.com/home", "productId": "HOME-001"},
     ];
 
-    List<Map<String, dynamic>> filteredProducts = widget.category == "All Products"
+    /// ✅ Apply Category Filter
+    List<Map<String, dynamic>> filteredProducts =
+    selectedCategory == "All"
         ? allProducts
-        : allProducts.where((p) => p['category'] == widget.category).toList();
+        : allProducts.where((p) => p['category'] == selectedCategory).toList();
 
+    /// ✅ Apply Search Filter
     if (searchKeyword.isNotEmpty) {
       filteredProducts = filteredProducts.where((p) =>
       p['productId'].toString().toLowerCase().contains(searchKeyword) ||
           p['seller'].toString().toLowerCase().contains(searchKeyword) ||
-          p['keywords'].toString().toLowerCase().contains(searchKeyword)
-      ).toList();
+          p['keywords'].toString().toLowerCase().contains(searchKeyword)).toList();
     }
 
     return Scrollbar(
@@ -414,12 +335,7 @@ class _PMProductsPageState extends State<PMProductsPage> {
                 horizontalMargin: 12.w,
                 columnSpacing: spacing.w,
                 dividerThickness: 0.4,
-                headingTextStyle: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13.sp,
-                  color: Colors.black87,
-                  letterSpacing: 0.5,
-                ),
+                headingTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 13.sp),
                 headingRowColor: MaterialStateProperty.all(const Color(0xffe4e6eb)),
                 columns: [
                   DataColumn(label: _h('Seller', 0)),
@@ -452,53 +368,50 @@ class _PMProductsPageState extends State<PMProductsPage> {
                       _c(6, _highlightText(p['keywords'])),
                       _c(7, Tooltip(
                         message: p['link'],
-                        child: Text(
-                          p['link'],
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 12.sp),
-                        ),
+                        child: Text(p['link'], overflow: TextOverflow.ellipsis, textAlign: TextAlign.center, style: TextStyle(fontSize: 12.sp)),
                       )),
                       _c(8, _highlightText(p['productId'])),
                       _c(9, Center(
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(6.r),
-                          child: Image.asset(
-                            'assets/images/sample.jpeg',
-                            width: 40.w,
-                            height: 40.h,
-                            fit: BoxFit.cover,
-                          ),
+                          child: Image.asset('assets/images/sample.jpeg', width: 40.w, height: 40.h, fit: BoxFit.cover),
                         ),
                       )),
                       _c(10, FittedBox(
                         child: Row(
                           children: [
                             ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                setState(() {
+                                  ShowReservationPage.reservations.add({
+                                    "sellerName": p["seller"],
+                                    "reservationId": DateTime.now().millisecondsSinceEpoch.toString(),
+                                    "productId": p["productId"],
+                                    "image": "assets/images/sample.jpeg",
+                                    "remaining": const Duration(hours: 2),
+                                  });
+                                });
+                                ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Product Reserved")));
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.orange.shade400,
                                 padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
                                 minimumSize: Size(60.w, 30.h),
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16.r),
-                                ),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
                                 elevation: 1.0,
                               ),
                               child: const Text("Reserve", style: TextStyle(fontSize: 11, color: Colors.white)),
                             ),
                             SizedBox(width: 6.w),
                             ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailPage(product: p)));
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.green.shade500,
                                 padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
                                 minimumSize: Size(60.w, 30.h),
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16.r),
-                                ),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
                                 elevation: 1.0,
                               ),
                               child: const Text("View", style: TextStyle(fontSize: 11, color: Colors.white)),

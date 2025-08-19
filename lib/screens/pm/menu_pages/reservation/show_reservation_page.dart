@@ -6,43 +6,30 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class ShowReservationPage extends StatefulWidget {
   const ShowReservationPage({super.key});
 
+  /// 🔹 Static global reservation list (accessible from PMProductsPage)
+  static List<Map<String, dynamic>> reservations = [];
+
   @override
   State<ShowReservationPage> createState() => _ShowReservationPageState();
 }
 
 class _ShowReservationPageState extends State<ShowReservationPage> {
-  List<Map<String, dynamic>> reservations = [
-    {
-      "sellerName": "Ali Hassan",
-      "reservationId":
-      "13499317-VERY-LONG-RESERVATION-ID-EXAMPLE-ABCDEFG123456",
-      "productId":
-      "PRD-2557309-SUPER-LONG-PRODUCT-ID-EXAMPLE-1234567890-ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-      "image": "assets/images/sample.jpeg", // Replace with actual image
-      "remaining": const Duration(hours: 2),
-    },
-  ];
-
-  /// To track which field is expanded for which card
-  final Map<int, Set<String>> expandedFields = {};
   Timer? _timer;
+
+  /// Track expanded fields for each reservation
+  final Map<int, Set<String>> expandedFields = {};
 
   @override
   void initState() {
     super.initState();
+    // ⏱️ Timer to update countdown for each reservation
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
-        reservations = reservations
-            .map((r) {
-          final Duration rem = r["remaining"];
-          if (rem > Duration.zero) {
-            return {...r, "remaining": rem - const Duration(seconds: 1)};
+        for (var r in ShowReservationPage.reservations) {
+          if (r["remaining"] > Duration.zero) {
+            r["remaining"] = r["remaining"] - const Duration(seconds: 1);
           }
-          return null;
-        })
-            .where((r) => r != null)
-            .cast<Map<String, dynamic>>()
-            .toList();
+        }
       });
     });
   }
@@ -53,6 +40,7 @@ class _ShowReservationPageState extends State<ShowReservationPage> {
     super.dispose();
   }
 
+  /// Format countdown duration into HH:MM:SS
   String _formatDuration(Duration d) {
     String twoDigits(int n) => n.toString().padLeft(2, "0");
     return "${twoDigits(d.inHours)}:${twoDigits(d.inMinutes.remainder(60))}:${twoDigits(d.inSeconds.remainder(60))}";
@@ -60,6 +48,8 @@ class _ShowReservationPageState extends State<ShowReservationPage> {
 
   @override
   Widget build(BuildContext context) {
+    final reservations = ShowReservationPage.reservations;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F8),
       body: Padding(
@@ -77,6 +67,7 @@ class _ShowReservationPageState extends State<ShowReservationPage> {
     );
   }
 
+  /// 🔹 Reservation Card UI
   Widget _buildReservationCard(Map<String, dynamic> r, int index) {
     final Duration remaining = r["remaining"];
     final bool isCritical = remaining.inMinutes < 10;
@@ -109,8 +100,7 @@ class _ShowReservationPageState extends State<ShowReservationPage> {
                 top: 12.h,
                 right: 12.w,
                 child: Container(
-                  padding:
-                  EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                   decoration: BoxDecoration(
                     color: isCritical
                         ? Colors.red.withOpacity(0.9)
@@ -149,7 +139,7 @@ class _ShowReservationPageState extends State<ShowReservationPage> {
                               color: Colors.black),
                           children: [
                             TextSpan(
-                              text: r["sellerName"] ?? "Adeel C",
+                              text: r["sellerName"] ?? "Unknown Seller",
                               style: TextStyle(
                                   fontWeight: FontWeight.normal,
                                   fontSize: 14.sp,
@@ -163,11 +153,13 @@ class _ShowReservationPageState extends State<ShowReservationPage> {
                 ),
                 SizedBox(height: 10.h),
 
-                /// ---- Reservation & Product IDs ----
+                /// ---- Reservation ID ----
                 _buildDetailRow(index, "reservationId",
                     Icons.confirmation_num_outlined, "Reservation ID",
                     r["reservationId"]),
                 SizedBox(height: 10.h),
+
+                /// ---- Product ID ----
                 _buildDetailRow(index, "productId", Icons.qr_code, "Product ID",
                     r["productId"]),
                 SizedBox(height: 16.h),
@@ -197,7 +189,11 @@ class _ShowReservationPageState extends State<ShowReservationPage> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8.r)),
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          setState(() {
+                            ShowReservationPage.reservations.removeAt(index);
+                          });
+                        },
                         child: const Text("Release",
                             style: TextStyle(color: Colors.white)),
                       ),
@@ -212,18 +208,20 @@ class _ShowReservationPageState extends State<ShowReservationPage> {
     );
   }
 
-  Widget _buildDetailRow(int index, String fieldKey, IconData icon,
-      String label, String value) {
+  /// 🔹 Detail row with proper alignment
+  Widget _buildDetailRow(
+      int index, String fieldKey, IconData icon, String label, String value) {
     bool isExpanded = expandedFields[index]?.contains(fieldKey) ?? false;
+    bool isExpandable = value.length > 25; // sirf lengthy values expand hongi
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 20, color: Colors.deepPurple),
-        SizedBox(width: 8.w),
-        Expanded(
-          child: AnimatedSize(
-            duration: const Duration(milliseconds: 300),
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 4.h),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center, // ✅ aligned row
+        children: [
+          Icon(icon, size: 20, color: Colors.deepPurple),
+          SizedBox(width: 8.w),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -232,47 +230,61 @@ class _ShowReservationPageState extends State<ShowReservationPage> {
                         fontWeight: FontWeight.w600,
                         fontSize: 13.sp,
                         color: Colors.black)),
-                Text(
-                  value,
-                  maxLines: isExpanded ? null : 1,
-                  overflow:
-                  isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 14.sp, color: Colors.black87),
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 300),
+                  child: Text(
+                    value,
+                    maxLines: isExpandable && !isExpanded ? 1 : null,
+                    overflow: isExpandable && !isExpanded
+                        ? TextOverflow.ellipsis
+                        : TextOverflow.visible,
+                    style: TextStyle(fontSize: 14.sp, color: Colors.black87),
+                  ),
                 ),
               ],
             ),
           ),
-        ),
-        IconButton(
-          icon: Icon(
-              isExpanded
-                  ? Icons.keyboard_arrow_up
-                  : Icons.keyboard_arrow_down,
-              size: 18,
-              color: Colors.orange),
-          onPressed: () {
-            setState(() {
-              expandedFields[index] ??= {};
-              if (isExpanded) {
-                expandedFields[index]!.remove(fieldKey);
-              } else {
-                expandedFields[index]!.add(fieldKey);
-              }
-            });
-          },
-        ),
-        IconButton(
-          icon: const Icon(Icons.copy, size: 18, color: Colors.green),
-          onPressed: () {
-            Clipboard.setData(ClipboardData(text: value));
-            ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("$label copied to clipboard")));
-          },
-        ),
-      ],
+
+          // 🔹 Arrow sirf jab text lamba ho
+          if (isExpandable)
+            IconButton(
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              icon: Icon(
+                  isExpanded
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
+                  size: 20,
+                  color: Colors.orange),
+              onPressed: () {
+                setState(() {
+                  expandedFields[index] ??= {};
+                  if (isExpanded) {
+                    expandedFields[index]!.remove(fieldKey);
+                  } else {
+                    expandedFields[index]!.add(fieldKey);
+                  }
+                });
+              },
+            ),
+
+          // 🔹 Copy button hamesha, aur properly aligned
+          IconButton(
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            icon: const Icon(Icons.copy, size: 20, color: Colors.green),
+            onPressed: () {
+              Clipboard.setData(ClipboardData(text: value));
+              ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text("$label copied to clipboard")));
+            },
+          ),
+        ],
+      ),
     );
   }
 
+  /// 🔹 Image Preview Dialog
   void _showImagePreview(BuildContext context, String imagePath) {
     showDialog(
       context: context,
@@ -290,6 +302,7 @@ class _ShowReservationPageState extends State<ShowReservationPage> {
     );
   }
 
+  /// 🔹 Empty state UI
   Widget _buildEmptyState() {
     return Center(
       child: Column(

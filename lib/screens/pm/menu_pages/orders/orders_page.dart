@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class OrdersPage extends StatefulWidget {
-  final String? status;
-  const OrdersPage({super.key, this.status});
+  const OrdersPage({super.key});
 
   @override
   State<OrdersPage> createState() => _OrdersPageState();
@@ -12,6 +11,24 @@ class OrdersPage extends StatefulWidget {
 class _OrdersPageState extends State<OrdersPage> {
   final TextEditingController _searchController = TextEditingController();
 
+  // 🔹 Order statuses for filter chips
+  final List<String> orderStatuses = [
+    "All",
+    "Ordered",
+    "Reviewed",
+    "Review Submitted Pending Refund",
+    "Review Deleted",
+    "Refunded",
+    "On Hold",
+    "Refunded Pending Refund",
+    "Cancelled",
+    "Commissioned",
+    "Completed",
+  ];
+
+  String selectedStatus = "All";
+
+  // 🔹 Dummy orders
   final List<Map<String, String>> allOrders = [
     {
       "id": "101",
@@ -135,10 +152,11 @@ class _OrdersPageState extends State<OrdersPage> {
     },
   ];
 
+  // 🔹 Filtered list
   List<Map<String, String>> get _filteredOrders {
-    List<Map<String, String>> filtered = widget.status == null
+    List<Map<String, String>> filtered = selectedStatus == "All"
         ? allOrders
-        : allOrders.where((o) => o["status"] == widget.status).toList();
+        : allOrders.where((o) => o["status"] == selectedStatus).toList();
 
     String query = _searchController.text.toLowerCase();
     if (query.isNotEmpty) {
@@ -159,7 +177,8 @@ class _OrdersPageState extends State<OrdersPage> {
     child: Center(
       child: Text(text,
           textAlign: TextAlign.center,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.sp)),
+          style:
+          TextStyle(fontWeight: FontWeight.bold, fontSize: 12.sp)),
     ),
   );
 
@@ -231,9 +250,43 @@ class _OrdersPageState extends State<OrdersPage> {
         child: Padding(
           padding: EdgeInsets.all(16.w),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildSearchBar(),
+              SizedBox(height: 12.h),
+
+              // 🔹 Status Filter Chips
+              SizedBox(
+                height: 40.h,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  padding: EdgeInsets.symmetric(horizontal: 8.w),
+                  itemCount: orderStatuses.length,
+                  separatorBuilder: (_, __) => SizedBox(width: 8.w),
+                  itemBuilder: (context, index) {
+                    final status = orderStatuses[index];
+                    final isActive = selectedStatus == status;
+                    return ChoiceChip(
+                      label: Text(status, style: TextStyle(fontSize: 12.sp)),
+                      selected: isActive,
+                      selectedColor: Colors.green.shade400,
+                      backgroundColor: Colors.grey.shade200,
+                      labelStyle: TextStyle(
+                        color: isActive ? Colors.white : Colors.black87,
+                        fontWeight:
+                        isActive ? FontWeight.bold : FontWeight.normal,
+                      ),
+                      onSelected: (_) {
+                        setState(() => selectedStatus = status);
+                      },
+                    );
+                  },
+                ),
+              ),
+
               SizedBox(height: 20.h),
+
+              // 🔹 Orders Table
               Expanded(
                 child: Scrollbar(
                   controller: v,
@@ -247,169 +300,122 @@ class _OrdersPageState extends State<OrdersPage> {
                         constraints: BoxConstraints(minWidth: minTableWidth),
                         child: SingleChildScrollView(
                           controller: v,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                colors: [
-                                  Color(0xfffcfcfd),
-                                  Color(0xffffffff),
-                                ],
-                              ),
-                              borderRadius: BorderRadius.circular(16.r),
-                              border: Border.all(
-                                color: Colors.grey.shade300,
-                                width: 1,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.08),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
+                          child: DataTable(
+                            headingRowHeight: 48.h,
+                            dataRowMinHeight: 56.h,
+                            dataRowMaxHeight: 60.h,
+                            horizontalMargin: 12.w,
+                            columnSpacing: spacing.w,
+                            dividerThickness: 0.4,
+                            headingTextStyle: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13.sp,
+                              color: Colors.black87,
+                              letterSpacing: 0.5,
                             ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(16.r),
-                              child: DataTable(
-                                headingRowHeight: 48.h,
-                                dataRowMinHeight: 56.h,
-                                dataRowMaxHeight: 60.h,
-                                horizontalMargin: 12.w,
-                                columnSpacing: spacing.w,
-                                dividerThickness: 0.4,
-                                headingTextStyle: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13.sp,
-                                  color: Colors.black87,
-                                  letterSpacing: 0.5,
-                                ),
-                                headingRowColor: MaterialStateProperty.all(
-                                    const Color(0xffe4e6eb)),
-                                columns: [
-                                  DataColumn(label: _h("ID", 0)),
-                                  DataColumn(label: _h("Product ID", 1)),
-                                  DataColumn(label: _h("Seller ID", 2)),
-                                  DataColumn(label: _h("User", 3)),
-                                  DataColumn(label: _h("Order No", 4)),
-                                  DataColumn(label: _h("Image", 5)),
-                                  DataColumn(label: _h("Email", 6)),
-                                  DataColumn(label: _h("Market", 7)),
-                                  DataColumn(label: _h("Type", 8)),
-                                  DataColumn(label: _h("Date", 9)),
-                                  DataColumn(label: _h("Status", 10)),
-                                  DataColumn(label: _h("Action", 11)),
-                                ],
-                                rows: _filteredOrders.asMap().entries.map((entry) {
-                                  final index = entry.key;
-                                  final order = entry.value;
-                                  final isEven = index % 2 == 0;
+                            headingRowColor: MaterialStateProperty.all(
+                                const Color(0xffe4e6eb)),
+                            columns: [
+                              DataColumn(label: _h("ID", 0)),
+                              DataColumn(label: _h("Product ID", 1)),
+                              DataColumn(label: _h("Seller ID", 2)),
+                              DataColumn(label: _h("User", 3)),
+                              DataColumn(label: _h("Order No", 4)),
+                              DataColumn(label: _h("Image", 5)),
+                              DataColumn(label: _h("Email", 6)),
+                              DataColumn(label: _h("Market", 7)),
+                              DataColumn(label: _h("Type", 8)),
+                              DataColumn(label: _h("Date", 9)),
+                              DataColumn(label: _h("Status", 10)),
+                              DataColumn(label: _h("Action", 11)),
+                            ],
+                            rows: _filteredOrders.asMap().entries.map((entry) {
+                              final index = entry.key;
+                              final order = entry.value;
+                              final isEven = index % 2 == 0;
 
-                                  return DataRow(
-                                    color: MaterialStateProperty.all(
-                                      isEven
-                                          ? const Color(0xfffdfdfd)
-                                          : const Color(0xfff0f2f5),
+                              return DataRow(
+                                color: MaterialStateProperty.all(
+                                  isEven
+                                      ? const Color(0xfffdfdfd)
+                                      : const Color(0xfff0f2f5),
+                                ),
+                                cells: [
+                                  _c(0, order["id"]!),
+                                  _c(1, order["productId"]!),
+                                  _c(2, order["sellerId"]!),
+                                  _c(3, order["user"]!),
+                                  _c(4, order["orderNo"]!),
+                                  DataCell(Center(
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(6.r),
+                                      child: Image.asset(
+                                        'assets/images/sample.jpeg',
+                                        width: 40.w,
+                                        height: 40.h,
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
-                                    cells: [
-                                      _c(0, order["id"]!),
-                                      _c(1, order["productId"]!),
-                                      _c(2, order["sellerId"]!),
-                                      _c(3, order["user"]!),
-                                      _c(4, order["orderNo"]!),
-                                      DataCell(SizedBox(
-                                        width: _colW[5],
-                                        child: Center(
-                                          child: ClipRRect(
+                                  )),
+                                  _c(6, order["email"]!),
+                                  _c(7, order["market"]!),
+                                  _c(8, order["type"]!),
+                                  _c(9, order["createDate"]!),
+                                  _c(10, order["status"]!),
+                                  DataCell(Row(
+                                    children: [
+                                      ElevatedButton(
+                                        onPressed: () {},
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor:
+                                          Colors.orange.shade400,
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 10.w, vertical: 6.h),
+                                          minimumSize: Size(70.w, 32.h),
+                                          tapTargetSize: MaterialTapTargetSize
+                                              .shrinkWrap,
+                                          shape: RoundedRectangleBorder(
                                             borderRadius:
-                                            BorderRadius.circular(6.r),
-                                            child: Image.asset(
-                                              'assets/images/sample.jpeg',
-                                              width: 40.w,
-                                              height: 40.h,
-                                              fit: BoxFit.cover,
-                                            ),
+                                            BorderRadius.circular(20.r),
                                           ),
                                         ),
-                                      )),
-                                      _c(6, order["email"]!),
-                                      _c(7, order["market"]!),
-                                      _c(8, order["type"]!),
-                                      _c(9, order["createDate"]!),
-                                      _c(10, order["status"]!),
-                                      DataCell(SizedBox(
-                                        width: _colW[11],
-                                        child: FittedBox(
-                                          child: Row(
-                                            children: [
-                                              ElevatedButton(
-                                                onPressed: () {},
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                  Colors.orange.shade400,
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal: 10.w,
-                                                      vertical: 6.h),
-                                                  minimumSize:
-                                                  Size(90.w, 36.h),
-                                                  tapTargetSize:
-                                                  MaterialTapTargetSize
-                                                      .shrinkWrap,
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                    BorderRadius.circular(
-                                                        20.r),
-                                                  ),
-                                                  elevation: 1.5,
-                                                ),
-                                                child: Text("View",
-                                                    style: TextStyle(
-                                                        fontSize: 12.sp,
-                                                        color: Colors.white)),
-                                              ),
-                                              SizedBox(width: 6.w),
-                                              ElevatedButton(
-                                                onPressed: () {},
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                  Colors.red.shade400,
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal: 10.w,
-                                                      vertical: 6.h),
-                                                  minimumSize:
-                                                  Size(90.w, 36.h),
-                                                  tapTargetSize:
-                                                  MaterialTapTargetSize
-                                                      .shrinkWrap,
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                    BorderRadius.circular(
-                                                        20.r),
-                                                  ),
-                                                  elevation: 1.5,
-                                                ),
-                                                child: Text("Report",
-                                                    style: TextStyle(
-                                                        fontSize: 12.sp,
-                                                        color: Colors.white)),
-                                              ),
-                                            ],
+                                        child: Text("View",
+                                            style: TextStyle(
+                                                fontSize: 11.sp,
+                                                color: Colors.white)),
+                                      ),
+                                      SizedBox(width: 6.w),
+                                      ElevatedButton(
+                                        onPressed: () {},
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.red.shade400,
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 10.w, vertical: 6.h),
+                                          minimumSize: Size(70.w, 32.h),
+                                          tapTargetSize: MaterialTapTargetSize
+                                              .shrinkWrap,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                            BorderRadius.circular(20.r),
                                           ),
                                         ),
-                                      )),
+                                        child: Text("Report",
+                                            style: TextStyle(
+                                                fontSize: 11.sp,
+                                                color: Colors.white)),
+                                      ),
                                     ],
-                                  );
-                                }).toList(),
-                              ),
-                            ),
+                                  )),
+                                ],
+                              );
+                            }).toList(),
                           ),
                         ),
                       ),
                     ),
                   ),
                 ),
-              )
+              ),
             ],
           ),
         ),

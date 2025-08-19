@@ -5,13 +5,10 @@ import 'pm_home_page.dart';
 import 'pm_alerts_page.dart';
 import 'pm_mail_page.dart';
 import 'pm_profile_page.dart';
-import 'menu_pages/pm_delay_refunds_page.dart';
-import 'menu_pages/pm_check_blacklist_paypal_page.dart';
-import 'menu_pages/reservation/subpages/show_reservation_page.dart';
-import 'menu_pages/reservation/subpages/add_new_reservation_page.dart';
+import 'menu_pages/delayrefund/pm_delay_refunds_page.dart';
+import 'menu_pages/checkpaypal/pm_check_blacklist_paypal_page.dart';
+import 'menu_pages/reservation/show_reservation_page.dart';
 import 'menu_pages/orders/orders_page.dart';
-
-
 
 class PlaceholderPage extends StatelessWidget {
   final String title;
@@ -42,84 +39,39 @@ class _PMDashboardState extends State<PMDashboard> {
     const PlaceholderPage(title: "Orders"), // 5 (not used directly)
     const PlaceholderPage(title: "Products"), // 6 (not used directly)
     const PlaceholderPage(title: "Reservations"), // 7 (not used directly)
-    const PMProfilePage(changePasswordOnly: true), // 8 change password
+    const PMProfilePage(changePasswordOnly: true), // 8
     const PMProfilePage(), // 9 user profile
     const PlaceholderPage(title: "Create Excel"), // 10
     const PlaceholderPage(title: "Support"), // 11
     const PMCheckBlacklistPaypalPage(), // 12
 
-    // Orders subpages
-    const OrdersPage(), // All Orders (13) – no status filter
-    const OrdersPage(status: "Ordered"), // 14
-    const OrdersPage(status: "Reviewed"), // 15
-    const OrdersPage(status: "Review Submitted Pending Refund"), // 16
-    const OrdersPage(status: "Review Deleted"), // 17
-    const OrdersPage(status: "Refunded"), // 18
-    const OrdersPage(status: "On Hold"), // 19
-    const OrdersPage(status: "Refunded Pending Refund"), // 20
-    const OrdersPage(status: "Cancelled"), // 21
-    const OrdersPage(status: "Commissioned"), // 22
-    const OrdersPage(status: "Completed"), // 23
+    /// ✅ Orders (single page with chips)
+    const OrdersPage(), // 13
 
+    /// ✅ Products
+    const PMProductsPage(category: "All"), // 14
 
-    // Products subpages
-    const PMProductsPage(category: "All Products"), // 24
-    const PMProductsPage(category: "General"),      // 25
-    const PMProductsPage(category: "Electronics"),  // 26
-    const PMProductsPage(category: "Health & Beauty"), // 27
-    const PMProductsPage(category: "Baby Products"), // 28
-    const PMProductsPage(category: "Gaming Devices"), // 29
-    const PMProductsPage(category: "Fashion (Cloths & Shoes)"), // 30
-    const PMProductsPage(category: "Mobile Accessories"), // 31
-    const PMProductsPage(category: "Expensive Products"), // 32
-    const PMProductsPage(category: "Pet Related"), // 33
-    const PMProductsPage(category: "Home & Kitchen"), // 34
-
-
-
-    // Reservations subpages
-    const AddNewReservationPage(), // 35
-    const ShowReservationPage(), // 36
+    /// ✅ Reservations
+    const ShowReservationPage(), // 15
   ];
 
   final List<String> _titles = [
-    "PM Dashboard",
-    "PM Alerts",
-    "PM Mail",
-    "Profile",
-    "Delay Refunds",
-    "Orders",
-    "Products",
-    "Reservations",
-    "Change Password",
-    "User Profile",
-    "Create Excel",
-    "Support",
-    "Check Blacklisted Paypal",
-    "All Orders",
-    "Ordered",
-    "Reviewed",
-    "Review Submitted Pending Refund",
-    "Review Deleted",
-    "Refunded",
-    "On Hold",
-    "Refunded Pending Refund",
-    "Cancelled",
-    "Commissioned",
-    "Completed",
-    "All Products",
-    "General",
-    "Electronics",
-    "Health & Beauty",
-    "Baby Products",
-    "Gaming Devices",
-    "Fashion (Cloths & Shoes)",
-    "Mobile Accessories",
-    "Expensive Products",
-    "Pet Related",
-    "Home & Kitchen",
-    "Add New Reservation",
-    "Show Reservation",
+    "PM Dashboard", // 0
+    "PM Alerts",    // 1
+    "PM Mail",      // 2
+    "Profile",      // 3
+    "Delay Refunds",// 4
+    "Orders",       // 5 placeholder
+    "Products",     // 6 placeholder
+    "Reservations", // 7 placeholder
+    "Change Password", // 8
+    "User Profile",    // 9
+    "Create Excel",    // 10
+    "Support",         // 11
+    "Check Blacklisted Paypal", // 12
+    "Orders",          // 13 ✅
+    "Products",        // 14 ✅
+    "Show Reservation" // 15 ✅
   ];
 
   void _onTabTapped(int index) => setState(() => _selectedIndex = index);
@@ -142,8 +94,10 @@ class _PMDashboardState extends State<PMDashboard> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
-            borderRadius:
-            BorderRadius.only(bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30)),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(30),
+              bottomRight: Radius.circular(30),
+            ),
           ),
           child: SafeArea(
             child: Padding(
@@ -157,17 +111,24 @@ class _PMDashboardState extends State<PMDashboard> {
                         width: 24.w, height: 24.w, color: Colors.white),
                   ),
                   Text(_titles[_selectedIndex],
-                      style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w600, color: Colors.white)),
+                      style: TextStyle(
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white)),
                   PopupMenuButton<String>(
-                    icon: const Icon(Icons.account_circle, color: Colors.white, size: 32),
+                    icon: const Icon(Icons.account_circle,
+                        color: Colors.white, size: 32),
                     color: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.r)),
                     onSelected: (value) {
                       if (value == 'edit') setState(() => _selectedIndex = 9);
                     },
                     itemBuilder: (context) => const [
-                      PopupMenuItem<String>(value: 'edit', child: Text("Edit Profile")),
-                      PopupMenuItem<String>(value: 'logout', child: Text("Logout")),
+                      PopupMenuItem<String>(
+                          value: 'edit', child: Text("Edit Profile")),
+                      PopupMenuItem<String>(
+                          value: 'logout', child: Text("Logout")),
                     ],
                   ),
                 ],
@@ -191,13 +152,21 @@ class _PMDashboardState extends State<PMDashboard> {
               padding: EdgeInsets.all(16.w),
               child: Row(
                 children: [
-                  CircleAvatar(radius: 28.r, backgroundImage: const AssetImage('assets/images/profile.png')),
+                  CircleAvatar(
+                    radius: 28.r,
+                    backgroundImage:
+                    const AssetImage('assets/images/profile.png'),
+                  ),
                   SizedBox(width: 12.w),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Sara Khan", style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
-                      Text("Project Manager", style: TextStyle(color: Colors.grey, fontSize: 13.sp)),
+                      Text("Sara Khan",
+                          style: TextStyle(
+                              fontSize: 16.sp, fontWeight: FontWeight.bold)),
+                      Text("Project Manager",
+                          style: TextStyle(
+                              color: Colors.grey, fontSize: 13.sp)),
                     ],
                   ),
                 ],
@@ -206,86 +175,14 @@ class _PMDashboardState extends State<PMDashboard> {
             Divider(thickness: 1, color: Colors.grey.shade300),
             _drawerMainItem(Icons.dashboard, "Dashboard", 0),
 
-            /// Orders (highlight if any subpage active)
-            ExpansionTile(
-              initiallyExpanded: _selectedIndex >= 13 && _selectedIndex <= 23,
-              leading: Icon(Icons.shopping_bag_outlined,
-                  color: (_selectedIndex >= 13 && _selectedIndex <= 23)
-                      ? Colors.green
-                      : Colors.grey.shade600),
-              title: Text("Orders",
-                  style: TextStyle(
-                      fontWeight: (_selectedIndex >= 13 && _selectedIndex <= 23)
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                      color: (_selectedIndex >= 13 && _selectedIndex <= 23)
-                          ? Colors.green
-                          : Colors.black87)),
-              children: [
-                _drawerSubItem(Icons.remove_red_eye_outlined, "All", 13),
-                _drawerSubItem(Icons.remove_red_eye_outlined, "Ordered", 14),
-                _drawerSubItem(Icons.remove_red_eye_outlined, "Reviewed", 15),
-                _drawerSubItem(Icons.thumb_up_alt_outlined, "Review Submitted Pending Refund", 16),
-                _drawerSubItem(Icons.cancel_outlined, "Review Deleted", 17),
-                _drawerSubItem(Icons.assignment_returned_outlined, "Refunded", 18),
-                _drawerSubItem(Icons.pan_tool_outlined, "On Hold", 19),
-                _drawerSubItem(Icons.refresh_outlined, "Refunded Pending Refund", 20),
-                _drawerSubItem(Icons.close, "Cancelled", 21),
-                _drawerSubItem(Icons.handshake_outlined, "Commissioned", 22),
-                _drawerSubItem(Icons.done_all, "Completed", 23),
-              ],
-            ),
+            /// ✅ Orders (single menu item)
+            _drawerMainItem(Icons.shopping_bag_outlined, "Orders", 13),
 
-            /// Products (highlight if any subpage active)
-            ExpansionTile(
-              initiallyExpanded: _selectedIndex >= 24 && _selectedIndex <= 34,
-              leading: Icon(Icons.inventory_2_outlined,
-                  color: (_selectedIndex >= 24 && _selectedIndex <= 34)
-                      ? Colors.green
-                      : Colors.grey.shade600),
-              title: Text("Products",
-                  style: TextStyle(
-                      fontWeight: (_selectedIndex >= 24 && _selectedIndex <= 34)
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                      color: (_selectedIndex >= 24 && _selectedIndex <= 34)
-                          ? Colors.green
-                          : Colors.black87)),
-              children: [
-                _drawerSubItem(Icons.inventory, "All Products", 24),
-                _drawerSubItem(Icons.category, "General", 25),
-                _drawerSubItem(Icons.devices_other, "Electronics", 26),
-                _drawerSubItem(Icons.spa_outlined, "Health & Beauty", 27),
-                _drawerSubItem(Icons.child_friendly, "Baby Products", 28),
-                _drawerSubItem(Icons.videogame_asset_outlined, "Gaming Devices", 29),
-                _drawerSubItem(Icons.checkroom_outlined, "Fashion (Cloths & Shoes)", 30),
-                _drawerSubItem(Icons.phone_android_outlined, "Mobile Accessories", 31),
-                _drawerSubItem(Icons.attach_money_outlined, "Expensive Products", 32),
-                _drawerSubItem(Icons.pets_outlined, "Pet Related", 33),
-                _drawerSubItem(Icons.kitchen_outlined, "Home & Kitchen", 34),
-              ],
-            ),
+            /// ✅ Products
+            _drawerMainItem(Icons.inventory_2_outlined, "Products", 14),
 
-            /// Reservations (highlight if any subpage active)
-            ExpansionTile(
-              initiallyExpanded: _selectedIndex >= 35 && _selectedIndex <= 36,
-              leading: Icon(Icons.event_note,
-                  color: (_selectedIndex >= 35 && _selectedIndex <= 36)
-                      ? Colors.green
-                      : Colors.grey.shade600),
-              title: Text("Reservations",
-                  style: TextStyle(
-                      fontWeight: (_selectedIndex >= 35 && _selectedIndex <= 36)
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                      color: (_selectedIndex >= 35 && _selectedIndex <= 36)
-                          ? Colors.green
-                          : Colors.black87)),
-              children: [
-                _drawerSubItem(Icons.add, "Add New", 35),
-                _drawerSubItem(Icons.remove_red_eye_outlined, "Show", 36),
-              ],
-            ),
+            /// ✅ Reservations
+            _drawerMainItem(Icons.event_note, "Show Reservation", 15),
 
             _drawerMainItem(Icons.lock, "Change Password", 8),
             _drawerMainItem(Icons.person_outline, "User Profile", 9),
@@ -293,12 +190,6 @@ class _PMDashboardState extends State<PMDashboard> {
             _drawerMainItem(Icons.support_agent, "Support", 11),
             _drawerMainItem(Icons.payment, "Check Blacklisted Paypal", 12),
             _drawerMainItem(Icons.timer_off, "Delay Refunds", 4),
-
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text("Logout"),
-              onTap: () {},
-            ),
           ],
         ),
       ),
@@ -315,26 +206,15 @@ class _PMDashboardState extends State<PMDashboard> {
       )
           : null,
       child: ListTile(
-        leading: Icon(icon, color: isActive ? Colors.green : Colors.grey.shade600),
+        leading: Icon(icon,
+            color: isActive ? Colors.green : Colors.grey.shade600),
         title: Text(title,
             style: TextStyle(
                 color: isActive ? Colors.green : Colors.black87,
-                fontWeight: isActive ? FontWeight.bold : FontWeight.normal)),
+                fontWeight:
+                isActive ? FontWeight.bold : FontWeight.normal)),
         onTap: () => _onDrawerItemTapped(index),
       ),
-    );
-  }
-
-  Widget _drawerSubItem(IconData icon, String title, int index) {
-    bool isActive = _selectedIndex == index;
-    return ListTile(
-      contentPadding: EdgeInsets.only(left: 72.w, right: 16.w),
-      leading: Icon(icon, color: isActive ? Colors.green : Colors.grey.shade600),
-      title: Text(title,
-          style: TextStyle(
-              color: isActive ? Colors.green : Colors.black87,
-              fontWeight: isActive ? FontWeight.bold : FontWeight.normal)),
-      onTap: () => _onDrawerItemTapped(index),
     );
   }
 
@@ -380,13 +260,15 @@ class _PMDashboardState extends State<PMDashboard> {
     return BottomNavigationBarItem(
       icon: Column(
         children: [
-          Icon(icon, size: 24, color: isActive ? Colors.green : Colors.grey),
+          Icon(icon, size: 24,
+              color: isActive ? Colors.green : Colors.grey),
           if (isActive)
             Container(
               width: 6,
               height: 6,
               margin: const EdgeInsets.only(top: 2),
-              decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.green),
+              decoration: const BoxDecoration(
+                  shape: BoxShape.circle, color: Colors.green),
             ),
         ],
       ),
