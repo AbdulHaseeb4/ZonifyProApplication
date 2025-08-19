@@ -11,7 +11,6 @@ class PMProductsPage extends StatefulWidget {
 
 class _PMProductsPageState extends State<PMProductsPage> {
   final TextEditingController _searchController = TextEditingController();
-  final ScrollController verticalScrollController = ScrollController();
 
   String searchKeyword = '';
   String selectedMarket = "Select Market";
@@ -64,17 +63,57 @@ class _PMProductsPageState extends State<PMProductsPage> {
   };
 
   final List<double> _colW = <double>[
-    90, 70, 80, 90, 90, 90, 130, 200, 90, 70, 180,
+    90.w, 70.w, 80.w, 90.w, 90.w, 90.w, 130.w, 200.w, 90.w, 70.w, 180.w,
   ];
 
   Widget _h(String text, int i) => SizedBox(
     width: _colW[i],
-    child: Center(child: Text(text, textAlign: TextAlign.center)),
+    child: Center(
+      child: Text(text,
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12.sp)),
+    ),
   );
 
   DataCell _c(int i, Widget child) => DataCell(
     SizedBox(width: _colW[i], child: Center(child: child)),
   );
+
+  // 🔹 Function to highlight search matches
+  Widget _highlightText(String text) {
+    if (searchKeyword.isEmpty) return Text(text, style: TextStyle(fontSize: 12.sp));
+
+    final lowerText = text.toLowerCase();
+    final lowerSearch = searchKeyword.toLowerCase();
+
+    if (!lowerText.contains(lowerSearch)) {
+      return Text(text, style: TextStyle(fontSize: 12.sp));
+    }
+
+    final spans = <TextSpan>[];
+    int start = 0;
+    int index;
+
+    while ((index = lowerText.indexOf(lowerSearch, start)) != -1) {
+      if (index > start) {
+        spans.add(TextSpan(
+            text: text.substring(start, index),
+            style: TextStyle(fontSize: 12.sp, color: Colors.black)));
+      }
+      spans.add(TextSpan(
+          text: text.substring(index, index + lowerSearch.length),
+          style: TextStyle(fontSize: 12.sp, backgroundColor: Colors.yellow, color: Colors.black)));
+      start = index + lowerSearch.length;
+    }
+
+    if (start < text.length) {
+      spans.add(TextSpan(
+          text: text.substring(start),
+          style: TextStyle(fontSize: 12.sp, color: Colors.black)));
+    }
+
+    return RichText(text: TextSpan(children: spans));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -144,9 +183,7 @@ class _PMProductsPageState extends State<PMProductsPage> {
             icon: const Icon(Icons.clear, color: Colors.redAccent, size: 18),
             onPressed: () {
               _searchController.clear();
-              setState(() {
-                searchKeyword = '';
-              });
+              setState(() => searchKeyword = '');
             },
           )
               : null,
@@ -155,11 +192,7 @@ class _PMProductsPageState extends State<PMProductsPage> {
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(horizontal: 12.w),
         ),
-        onChanged: (val) {
-          setState(() {
-            searchKeyword = val.trim().toLowerCase();
-          });
-        },
+        onChanged: (val) => setState(() => searchKeyword = val.trim().toLowerCase()),
       ),
     );
   }
@@ -192,12 +225,9 @@ class _PMProductsPageState extends State<PMProductsPage> {
           child: DropdownButton<String>(
             value: value,
             icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.black54, size: 18),
-            style: TextStyle(fontSize: 13.sp, color: Colors.black87),
             isExpanded: true,
             borderRadius: BorderRadius.circular(14.r),
-            onChanged: (val) {
-              if (val != null) onChanged(val);
-            },
+            onChanged: (val) => val != null ? onChanged(val) : null,
             items: items.map((item) {
               final icon = iconMap[item] ?? Icons.circle;
               return DropdownMenuItem(
@@ -207,14 +237,12 @@ class _PMProductsPageState extends State<PMProductsPage> {
                     Icon(icon, size: 16),
                     SizedBox(width: 6.w),
                     Expanded(
-                      child: Text(
-                        item,
-                        style: TextStyle(
-                          fontSize: 13.sp,
-                          fontWeight: value == item ? FontWeight.bold : FontWeight.normal,
-                          color: Colors.black54,
-                        ),
-                      ),
+                      child: Text(item,
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            fontWeight: value == item ? FontWeight.bold : FontWeight.normal,
+                            color: Colors.black54,
+                          )),
                     ),
                   ],
                 ),
@@ -232,9 +260,7 @@ class _PMProductsPageState extends State<PMProductsPage> {
     const double spacing = 18.0;
     final double minTableWidth = _colW.reduce((a, b) => a + b) + spacing * (_colW.length - 1);
 
-    // Sample dummy data for all categories
     List<Map<String, dynamic>> allProducts = [
-      // Gaming Devices
       {
         'category': 'Gaming Devices',
         'seller': '124',
@@ -247,7 +273,6 @@ class _PMProductsPageState extends State<PMProductsPage> {
         'link': 'https://example.com/gaming/1',
         'productId': 'edb510d7-d741-43a8-a249-a8e450b1f894',
       },
-      // Health & Beauty
       {
         'category': 'Health & Beauty',
         'seller': '349',
@@ -260,7 +285,6 @@ class _PMProductsPageState extends State<PMProductsPage> {
         'link': 'https://example.com/health/1',
         'productId': '2934aaad-1b94-4c06-bb72-975a6c63a32c',
       },
-      // Fashion
       {
         'category': 'Fashion (Cloths & Shoes)',
         'seller': '789',
@@ -273,7 +297,6 @@ class _PMProductsPageState extends State<PMProductsPage> {
         'link': 'https://example.com/fashion/1',
         'productId': '1a37ca6d-98f4-4641-94ce-d61e8b167160',
       },
-      // Electronics
       {
         'category': 'Electronics',
         'seller': '56',
@@ -286,7 +309,6 @@ class _PMProductsPageState extends State<PMProductsPage> {
         'link': 'https://example.com/electronics/1',
         'productId': '7ef270e3-daba-469b-b275-ef49f8986127',
       },
-      // Mobile Accessories
       {
         'category': 'Mobile Accessories',
         'seller': '471',
@@ -299,7 +321,6 @@ class _PMProductsPageState extends State<PMProductsPage> {
         'link': 'https://example.com/mobile/1',
         'productId': 'ea6d5a0d-4510-4ddf-b995-ced0132ba17e',
       },
-      // Baby Products
       {
         'category': 'Baby Products',
         'seller': '867',
@@ -312,20 +333,73 @@ class _PMProductsPageState extends State<PMProductsPage> {
         'link': 'https://example.com/baby/1',
         'productId': '6c11d7ae-641b-4ebc-9b12-cfbf30cabf89',
       },
+      {
+        'category': 'Home & Kitchen',
+        'seller': '320',
+        'market': 'UAE',
+        'saleLimit': '70',
+        'todayRemain': '50',
+        'totalRemain': '65',
+        'commission': '2100',
+        'keywords': 'Cookware Set',
+        'link': 'https://example.com/home/1',
+        'productId': 'd3d43156-b3d5-4e1a-bec8-d73fdd339333',
+      },
+      {
+        'category': 'Books & Education',
+        'seller': '901',
+        'market': 'UK',
+        'saleLimit': '15',
+        'todayRemain': '9',
+        'totalRemain': '10',
+        'commission': '900',
+        'keywords': 'Educational Book',
+        'link': 'https://example.com/books/1',
+        'productId': '31ddc4fb-ec39-4df4-a14b-87b8979f1c3f',
+      },
+      {
+        'category': 'Fitness',
+        'seller': '223',
+        'market': 'US',
+        'saleLimit': '20',
+        'todayRemain': '10',
+        'totalRemain': '15',
+        'commission': '1800',
+        'keywords': 'Resistance Band',
+        'link': 'https://example.com/fitness/1',
+        'productId': 'ffb6e36c-9c2b-4dc2-bbcf-1fca3a2a7e3e',
+      },
+      {
+        'category': 'Toys',
+        'seller': '776',
+        'market': 'FR',
+        'saleLimit': '45',
+        'todayRemain': '25',
+        'totalRemain': '30',
+        'commission': '1600',
+        'keywords': 'Educational Toy',
+        'link': 'https://example.com/toys/1',
+        'productId': 'b47b5c23-e928-404f-8bd7-97db95f86fd9',
+      },
     ];
 
-    // Filter logic: if All Products, show all. Else filter by category
     List<Map<String, dynamic>> filteredProducts = widget.category == "All Products"
         ? allProducts
         : allProducts.where((p) => p['category'] == widget.category).toList();
 
+    if (searchKeyword.isNotEmpty) {
+      filteredProducts = filteredProducts.where((p) =>
+      p['productId'].toString().toLowerCase().contains(searchKeyword) ||
+          p['seller'].toString().toLowerCase().contains(searchKeyword) ||
+          p['keywords'].toString().toLowerCase().contains(searchKeyword)
+      ).toList();
+    }
+
     return Scrollbar(
       controller: v,
-      thumbVisibility: true,
-      radius: const Radius.circular(8),
       thickness: 5,
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16.r),
         child: SingleChildScrollView(
           controller: h,
           scrollDirection: Axis.horizontal,
@@ -333,20 +407,20 @@ class _PMProductsPageState extends State<PMProductsPage> {
             constraints: BoxConstraints(minWidth: minTableWidth),
             child: SingleChildScrollView(
               controller: v,
-              scrollDirection: Axis.vertical,
               child: DataTable(
-                headingRowHeight: 48,
-                dataRowMinHeight: 56,
-                dataRowMaxHeight: 60,
-                horizontalMargin: 12,
-                columnSpacing: spacing,
+                headingRowHeight: 48.h,
+                dataRowMinHeight: 56.h,
+                dataRowMaxHeight: 60.h,
+                horizontalMargin: 12.w,
+                columnSpacing: spacing.w,
                 dividerThickness: 0.4,
                 headingTextStyle: TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 14.sp,
+                  fontSize: 13.sp,
                   color: Colors.black87,
+                  letterSpacing: 0.5,
                 ),
-                headingRowColor: MaterialStateProperty.all(const Color(0xfff1f1f1)),
+                headingRowColor: MaterialStateProperty.all(const Color(0xffe4e6eb)),
                 columns: [
                   DataColumn(label: _h('Seller', 0)),
                   DataColumn(label: _h('Market', 1)),
@@ -360,56 +434,77 @@ class _PMProductsPageState extends State<PMProductsPage> {
                   DataColumn(label: _h('Image', 9)),
                   DataColumn(label: _h('Actions', 10)),
                 ],
-                rows: filteredProducts.map((p) {
+                rows: filteredProducts.asMap().entries.map((entry) {
+                  final i = entry.key;
+                  final p = entry.value;
+
                   return DataRow(
+                    color: MaterialStateProperty.all(
+                      i % 2 == 0 ? const Color(0xfffdfdfd) : const Color(0xfff0f2f5),
+                    ),
                     cells: [
-                      _c(0, Text(p['seller'])),
-                      _c(1, Text(p['market'])),
-                      _c(2, Text(p['saleLimit'])),
-                      _c(3, Text(p['todayRemain'])),
-                      _c(4, Text(p['totalRemain'])),
-                      _c(5, Text('PKR ${p['commission']}')),
-                      _c(6, Text(p['keywords'])),
-                      _c(7, Text(p['link'], overflow: TextOverflow.ellipsis, textAlign: TextAlign.center)),
-                      _c(8, Text(p['productId'])),
-                      _c(9, ClipRRect(
-                        borderRadius: BorderRadius.circular(6),
-                        child: Image.asset(
-                          'assets/images/sample.jpeg',
-                          width: 40,
-                          height: 40,
-                          fit: BoxFit.cover,
+                      _c(0, _highlightText(p['seller'])),
+                      _c(1, Text(p['market'], style: TextStyle(fontSize: 12.sp))),
+                      _c(2, Text(p['saleLimit'], style: TextStyle(fontSize: 12.sp))),
+                      _c(3, Text(p['todayRemain'], style: TextStyle(fontSize: 12.sp))),
+                      _c(4, Text(p['totalRemain'], style: TextStyle(fontSize: 12.sp))),
+                      _c(5, Text('PKR ${p['commission']}', style: TextStyle(fontSize: 12.sp))),
+                      _c(6, _highlightText(p['keywords'])),
+                      _c(7, Tooltip(
+                        message: p['link'],
+                        child: Text(
+                          p['link'],
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(fontSize: 12.sp),
                         ),
                       )),
-                      _c(10, Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.orange.shade400,
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              elevation: 1.5,
-                            ),
-                            child: const Text('Reserve', style: TextStyle(fontSize: 12, color: Colors.white)),
+                      _c(8, _highlightText(p['productId'])),
+                      _c(9, Center(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(6.r),
+                          child: Image.asset(
+                            'assets/images/sample.jpeg',
+                            width: 40.w,
+                            height: 40.h,
+                            fit: BoxFit.cover,
                           ),
-                          const SizedBox(width: 8),
-                          ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green.shade500,
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
+                        ),
+                      )),
+                      _c(10, FittedBox(
+                        child: Row(
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {},
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.orange.shade400,
+                                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
+                                minimumSize: Size(60.w, 30.h),
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16.r),
+                                ),
+                                elevation: 1.0,
                               ),
-                              elevation: 1.5,
+                              child: const Text("Reserve", style: TextStyle(fontSize: 11, color: Colors.white)),
                             ),
-                            child: const Text('View', style: TextStyle(fontSize: 12, color: Colors.white)),
-                          ),
-                        ],
+                            SizedBox(width: 6.w),
+                            ElevatedButton(
+                              onPressed: () {},
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green.shade500,
+                                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 4.h),
+                                minimumSize: Size(60.w, 30.h),
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16.r),
+                                ),
+                                elevation: 1.0,
+                              ),
+                              child: const Text("View", style: TextStyle(fontSize: 11, color: Colors.white)),
+                            ),
+                          ],
+                        ),
                       )),
                     ],
                   );
@@ -421,5 +516,4 @@ class _PMProductsPageState extends State<PMProductsPage> {
       ),
     );
   }
-
 }

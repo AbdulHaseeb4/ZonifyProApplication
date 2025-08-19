@@ -9,6 +9,8 @@ import 'menu_pages/pm_delay_refunds_page.dart';
 import 'menu_pages/pm_check_blacklist_paypal_page.dart';
 import 'menu_pages/reservation/subpages/show_reservation_page.dart';
 import 'menu_pages/reservation/subpages/add_new_reservation_page.dart';
+import 'menu_pages/orders/orders_page.dart';
+
 
 
 class PlaceholderPage extends StatelessWidget {
@@ -31,7 +33,7 @@ class _PMDashboardState extends State<PMDashboard> {
   int _selectedIndex = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  final List<Widget> _pages = [
+  final List<Widget> _pages = <Widget>[
     const PMHomePage(), // 0
     const PMAlertsPage(), // 1
     const PMMailPage(), // 2
@@ -47,17 +49,18 @@ class _PMDashboardState extends State<PMDashboard> {
     const PMCheckBlacklistPaypalPage(), // 12
 
     // Orders subpages
-    const PlaceholderPage(title: "All Orders"), // 13
-    const PlaceholderPage(title: "Ordered"), // 14
-    const PlaceholderPage(title: "Reviewed"), // 15
-    const PlaceholderPage(title: "Review Submitted Pending Refund"), // 16
-    const PlaceholderPage(title: "Review Deleted"), // 17
-    const PlaceholderPage(title: "Refunded"), // 18
-    const PlaceholderPage(title: "On Hold"), // 19
-    const PlaceholderPage(title: "Refunded Pending Refund"), // 20
-    const PlaceholderPage(title: "Cancelled"), // 21
-    const PlaceholderPage(title: "Commissioned"), // 22
-    const PlaceholderPage(title: "Completed"), // 23
+    const OrdersPage(), // All Orders (13) – no status filter
+    const OrdersPage(status: "Ordered"), // 14
+    const OrdersPage(status: "Reviewed"), // 15
+    const OrdersPage(status: "Review Submitted Pending Refund"), // 16
+    const OrdersPage(status: "Review Deleted"), // 17
+    const OrdersPage(status: "Refunded"), // 18
+    const OrdersPage(status: "On Hold"), // 19
+    const OrdersPage(status: "Refunded Pending Refund"), // 20
+    const OrdersPage(status: "Cancelled"), // 21
+    const OrdersPage(status: "Commissioned"), // 22
+    const OrdersPage(status: "Completed"), // 23
+
 
     // Products subpages
     const PMProductsPage(category: "All Products"), // 24
