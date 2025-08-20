@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:zonifypro/screens/pm/menu_pages/orders/order_create_page.dart';
 
 class ShowReservationPage extends StatefulWidget {
   const ShowReservationPage({super.key});
@@ -175,7 +176,15 @@ class _ShowReservationPageState extends State<ShowReservationPage> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8.r)),
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => OrderCreatePage(reservation: r),
+                            ),
+                          );
+                        },
+
                         child: const Text("Create Order",
                             style: TextStyle(color: Colors.white)),
                       ),
@@ -212,12 +221,12 @@ class _ShowReservationPageState extends State<ShowReservationPage> {
   Widget _buildDetailRow(
       int index, String fieldKey, IconData icon, String label, String value) {
     bool isExpanded = expandedFields[index]?.contains(fieldKey) ?? false;
-    bool isExpandable = value.length > 25; // sirf lengthy values expand hongi
+    bool isExpandable = value.length > 25;
 
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 4.h),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center, // ✅ aligned row
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Icon(icon, size: 20, color: Colors.deepPurple),
           SizedBox(width: 8.w),
@@ -244,8 +253,6 @@ class _ShowReservationPageState extends State<ShowReservationPage> {
               ],
             ),
           ),
-
-          // 🔹 Arrow sirf jab text lamba ho
           if (isExpandable)
             IconButton(
               padding: EdgeInsets.zero,
@@ -267,8 +274,6 @@ class _ShowReservationPageState extends State<ShowReservationPage> {
                 });
               },
             ),
-
-          // 🔹 Copy button hamesha, aur properly aligned
           IconButton(
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),

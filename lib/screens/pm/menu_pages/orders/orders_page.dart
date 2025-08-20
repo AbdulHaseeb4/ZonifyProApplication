@@ -11,6 +11,10 @@ class OrdersPage extends StatefulWidget {
 class _OrdersPageState extends State<OrdersPage> {
   final TextEditingController _searchController = TextEditingController();
 
+  // 🔹 Scroll controllers class level par
+  final ScrollController v = ScrollController();
+  final ScrollController h = ScrollController();
+
   // 🔹 Order statuses for filter chips
   final List<String> orderStatuses = [
     "All",
@@ -236,10 +240,154 @@ class _OrdersPageState extends State<OrdersPage> {
     ));
   }
 
+  // 🔹 Scroll to email column
+  void _scrollToEmailColumn() {
+    // Column index of "Email" = 6
+    double offset = 0;
+    for (int i = 0; i < 6; i++) {
+      offset += _colW[i] + 18; // width + spacing
+    }
+
+    if (h.hasClients) {
+      h.animateTo(
+        offset,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  // 🔹 Report dialog
+  void _showReportDialog(BuildContext context, String orderId) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        String? selectedIssue;
+
+        final issues = [
+          "Refund delay",
+          "Commission issue",
+          "Less refund",
+          "Other issue",
+          "Dispute",
+          "Wrong refund screenshot",
+        ];
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.r),
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(16.w),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 🔹 Header Row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: "Select the ",
+                                style: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14.sp),
+                              ),
+                              TextSpan(
+                                text: "issue!",
+                                style: TextStyle(
+                                    color: Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14.sp),
+                              ),
+                            ],
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => Navigator.pop(context),
+                          child: CircleAvatar(
+                            radius: 16,
+                            backgroundColor: Colors.grey.shade300,
+                            child: const Icon(Icons.close,
+                                color: Colors.black87, size: 18),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 20.h),
+
+                    // 🔹 Issues grid
+                    Wrap(
+                      spacing: 10.w,
+                      runSpacing: 12.h,
+                      children: issues.map((issue) {
+                        final isSelected = selectedIssue == issue;
+                        return ChoiceChip(
+                          label: Text(issue,
+                              style: TextStyle(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w500)),
+                          selected: isSelected,
+                          selectedColor: Colors.green.shade400,
+                          backgroundColor: Colors.grey.shade200,
+                          labelStyle: TextStyle(
+                            color: isSelected ? Colors.white : Colors.black87,
+                          ),
+                          onSelected: (_) {
+                            setState(() => selectedIssue = issue);
+                          },
+                        );
+                      }).toList(),
+                    ),
+
+                    SizedBox(height: 24.h),
+
+                    // 🔹 Confirm button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: selectedIssue == null
+                            ? null
+                            : () {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                  "Order $orderId reported for: $selectedIssue"),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          padding: EdgeInsets.symmetric(
+                              vertical: 12.h, horizontal: 16.w),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                          ),
+                        ),
+                        child: Text("Confirm",
+                            style: TextStyle(
+                                fontSize: 14.sp, color: Colors.white)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final ScrollController v = ScrollController();
-    final ScrollController h = ScrollController();
     const spacing = 18.0;
     final double minTableWidth =
         _colW.reduce((a, b) => a + b) + spacing * (_colW.length - 1);
@@ -372,8 +520,8 @@ class _OrdersPageState extends State<OrdersPage> {
                                           padding: EdgeInsets.symmetric(
                                               horizontal: 10.w, vertical: 6.h),
                                           minimumSize: Size(70.w, 32.h),
-                                          tapTargetSize: MaterialTapTargetSize
-                                              .shrinkWrap,
+                                          tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
                                           shape: RoundedRectangleBorder(
                                             borderRadius:
                                             BorderRadius.circular(20.r),
@@ -386,14 +534,17 @@ class _OrdersPageState extends State<OrdersPage> {
                                       ),
                                       SizedBox(width: 6.w),
                                       ElevatedButton(
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          _showReportDialog(
+                                              context, order["id"]!);
+                                        },
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: Colors.red.shade400,
                                           padding: EdgeInsets.symmetric(
                                               horizontal: 10.w, vertical: 6.h),
                                           minimumSize: Size(70.w, 32.h),
-                                          tapTargetSize: MaterialTapTargetSize
-                                              .shrinkWrap,
+                                          tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
                                           shape: RoundedRectangleBorder(
                                             borderRadius:
                                             BorderRadius.circular(20.r),
@@ -452,15 +603,26 @@ class _OrdersPageState extends State<OrdersPage> {
             onPressed: () {
               _searchController.clear();
               setState(() {});
+              if (h.hasClients) {
+                h.animateTo(0,
+                    duration: const Duration(milliseconds: 400),
+                    curve: Curves.easeInOut);
+              }
             },
           )
               : null,
           hintText: "Search by Email",
-          hintStyle: TextStyle(fontSize: 12.sp, color: Colors.grey.shade600),
+          hintStyle:
+          TextStyle(fontSize: 12.sp, color: Colors.grey.shade600),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(horizontal: 12.w),
         ),
-        onChanged: (_) => setState(() {}),
+        onChanged: (value) {
+          setState(() {});
+          if (value.isNotEmpty) {
+            _scrollToEmailColumn();
+          }
+        },
       ),
     );
   }

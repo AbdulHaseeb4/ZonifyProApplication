@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:zonifypro/screens/loginscreen.dart';
+import 'package:zonifypro/screens/common/loginscreen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

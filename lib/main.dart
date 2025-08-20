@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:zonifypro/screens/splashscreen.dart';
+import 'package:zonifypro/screens/common/splashscreen.dart';
 
 void main() {
   runApp(const ZonifyProApp());
