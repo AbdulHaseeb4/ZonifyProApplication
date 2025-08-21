@@ -57,20 +57,20 @@ class _PMDashboardState extends State<PMDashboard> {
 
   final List<String> _titles = [
     "PM Dashboard", // 0
-    "PM Alerts",    // 1
-    "PM Mail",      // 2
-    "Profile",      // 3
-    "Delay Refunds",// 4
-    "Orders",       // 5 placeholder
-    "Products",     // 6 placeholder
+    "PM Alerts", // 1
+    "PM Mail", // 2
+    "Profile", // 3
+    "Delay Refunds", // 4
+    "Orders", // 5 placeholder
+    "Products", // 6 placeholder
     "Reservations", // 7 placeholder
     "Change Password", // 8
-    "User Profile",    // 9
-    "Create Excel",    // 10
-    "Support",         // 11
+    "User Profile", // 9
+    "Create Excel", // 10
+    "Support", // 11
     "Check Blacklisted Paypal", // 12
-    "Orders",          // 13 ✅
-    "Products",        // 14 ✅
+    "Orders", // 13 ✅
+    "Products", // 14 ✅
     "Show Reservation" // 15 ✅
   ];
 
@@ -82,6 +82,9 @@ class _PMDashboardState extends State<PMDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    bool isWeb = screenWidth >= 800;
+
     return Scaffold(
       key: _scaffoldKey,
       drawer: _buildSideMenu(),
@@ -105,16 +108,31 @@ class _PMDashboardState extends State<PMDashboard> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  /// Drawer Icon
                   GestureDetector(
                     onTap: () => _scaffoldKey.currentState!.openDrawer(),
                     child: Image.asset('assets/icons/menu.png',
                         width: 24.w, height: 24.w, color: Colors.white),
                   ),
-                  Text(_titles[_selectedIndex],
-                      style: TextStyle(
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white)),
+
+                  /// ✅ Web → Top nav buttons, Mobile → Title
+                  if (isWeb)
+                    Row(
+                      children: [
+                        _topNavButton("Dashboard", 0),
+                        _topNavButton("Alerts", 1),
+                        _topNavButton("Mail", 2),
+                        _topNavButton("Profile", 3),
+                      ],
+                    )
+                  else
+                    Text(_titles[_selectedIndex],
+                        style: TextStyle(
+                            fontSize: 20.sp,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white)),
+
+                  /// Profile Menu (common)
                   PopupMenuButton<String>(
                     icon: const Icon(Icons.account_circle,
                         color: Colors.white, size: 32),
@@ -137,11 +155,32 @@ class _PMDashboardState extends State<PMDashboard> {
           ),
         ),
       ),
+
       body: _pages[_selectedIndex],
-      bottomNavigationBar: _buildModernNavBar(),
+
+      /// ✅ Mobile only bottom nav
+      bottomNavigationBar: isWeb ? null : _buildModernNavBar(),
     );
   }
 
+  Widget _topNavButton(String title, int index) {
+    bool isActive = _selectedIndex == index;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: TextButton(
+        onPressed: () => _onTabTapped(index),
+        child: Text(
+          title,
+          style: TextStyle(
+            color: isActive ? Colors.white : Colors.white70,
+            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// ✅ Responsive Drawer
   Widget _buildSideMenu() {
     return Drawer(
       child: SafeArea(
@@ -149,41 +188,52 @@ class _PMDashboardState extends State<PMDashboard> {
           padding: EdgeInsets.zero,
           children: [
             Padding(
-              padding: EdgeInsets.all(16.w),
+              padding: const EdgeInsets.all(16),
               child: Row(
                 children: [
-                  CircleAvatar(
-                    radius: 28.r,
-                    backgroundImage:
-                    const AssetImage('assets/images/profile.png'),
+                  const CircleAvatar(
+                    radius: 28,
+                    backgroundImage: AssetImage('assets/images/profile.png'),
                   ),
-                  SizedBox(width: 12.w),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Sara Khan",
-                          style: TextStyle(
-                              fontSize: 16.sp, fontWeight: FontWeight.bold)),
-                      Text("Project Manager",
-                          style: TextStyle(
-                              color: Colors.grey, fontSize: 13.sp)),
-                    ],
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        bool isWeb = constraints.maxWidth > 300;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Sara Khan",
+                              style: TextStyle(
+                                fontSize: isWeb ? 18 : 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Text(
+                              "Project Manager",
+                              style: TextStyle(
+                                fontSize: isWeb ? 14 : 12,
+                                color: Colors.grey,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),
             ),
             Divider(thickness: 1, color: Colors.grey.shade300),
             _drawerMainItem(Icons.dashboard, "Dashboard", 0),
-
-            /// ✅ Orders (single menu item)
             _drawerMainItem(Icons.shopping_bag_outlined, "Orders", 13),
-
-            /// ✅ Products
             _drawerMainItem(Icons.inventory_2_outlined, "Products", 14),
-
-            /// ✅ Reservations
             _drawerMainItem(Icons.event_note, "Show Reservation", 15),
-
             _drawerMainItem(Icons.lock, "Change Password", 8),
             _drawerMainItem(Icons.person_outline, "User Profile", 9),
             _drawerMainItem(Icons.table_view, "Create Excel", 10),
@@ -260,8 +310,8 @@ class _PMDashboardState extends State<PMDashboard> {
     return BottomNavigationBarItem(
       icon: Column(
         children: [
-          Icon(icon, size: 24,
-              color: isActive ? Colors.green : Colors.grey),
+          Icon(icon,
+              size: 24, color: isActive ? Colors.green : Colors.grey),
           if (isActive)
             Container(
               width: 6,

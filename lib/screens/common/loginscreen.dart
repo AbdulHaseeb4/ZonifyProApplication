@@ -65,6 +65,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    bool isWeb = screenWidth >= 800;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -79,158 +82,174 @@ class _LoginScreenState extends State<LoginScreen> {
             height: 1.sh,
             color: Colors.black.withOpacity(0.4),
           ),
+
+          /// Content
           SingleChildScrollView(
-            child: Column(
-              children: [
-                SizedBox(height: 0.12.sh),
-                CircleAvatar(
-                  radius: 50.r,
-                  backgroundImage: const AssetImage('assets/images/logo1.png'),
-                  backgroundColor: Colors.white.withOpacity(0.8),
-                ),
-                SizedBox(height: 20.h),
-                Text(
-                  "Welcome Back",
-                  style: TextStyle(
-                      fontSize: 28.sp,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white),
-                ),
-                SizedBox(height: 10.h),
-                Text(
-                  "Login to continue",
-                  style: TextStyle(color: Colors.white70, fontSize: 16.sp),
-                ),
-                SizedBox(height: 0.05.sh),
+            child: Center(
+              child: Column(
+                children: [
+                  SizedBox(height: 0.12.sh),
 
-                /// --- Login Box ---
-                Container(
-                  width: 1.sw,
-                  margin: EdgeInsets.symmetric(horizontal: 24.w),
-                  padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 28.h),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(18.r),
-                    boxShadow: [
-                      BoxShadow(
-                          color: Colors.black.withOpacity(0.15),
-                          blurRadius: 10.r,
-                          offset: const Offset(0, 4))
-                    ],
+                  /// Logo
+                  CircleAvatar(
+                    radius: isWeb ? 70 : 50.r,
+                    backgroundImage: const AssetImage('assets/images/logo1.png'),
+                    backgroundColor: Colors.white.withOpacity(0.8),
                   ),
-                  child: Form(
-                    key: _formKey,
-                    autovalidateMode: _isSubmitted
-                        ? AutovalidateMode.onUserInteraction
-                        : AutovalidateMode.disabled,
-                    child: Column(
-                      children: [
-                        /// Email Field
-                        TextFormField(
-                          controller: _emailController,
-                          validator: _validateEmail,
-                          decoration: InputDecoration(
-                            labelText: "Email",
-                            prefixIcon: Padding(
-                              padding: EdgeInsets.all(12.w),
-                              child: Image.asset(
-                                'assets/icons/email.png',
-                                width: 20.w,
-                                height: 20.w,
-                              ),
-                            ),
-                            filled: true,
-                            fillColor: Colors.grey[100],
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                              borderSide: const BorderSide(
-                                  color: gradientStart, width: 1.5),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 16.h),
 
-                        /// Password Field
-                        TextFormField(
-                          controller: _passwordController,
-                          validator: _validatePassword,
-                          obscureText: _obscurePassword,
-                          decoration: InputDecoration(
-                            labelText: "Password",
-                            prefixIcon: Padding(
-                              padding: EdgeInsets.all(12.w),
-                              child: Image.asset(
-                                'assets/icons/lock.png',
-                                width: 20.w,
-                                height: 20.w,
-                              ),
-                            ),
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility_off
-                                    : Icons.visibility,
-                                color: Colors.grey,
-                              ),
-                              onPressed: () =>
-                                  setState(() => _obscurePassword = !_obscurePassword),
-                            ),
-                            filled: true,
-                            fillColor: Colors.grey[100],
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12.r),
-                              borderSide: const BorderSide(
-                                  color: gradientStart, width: 1.5),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 20.h),
+                  SizedBox(height: isWeb ? 30 : 20.h),
 
-                        /// Login Button (icon removed, text centered)
-                        Align(
-                          alignment: Alignment.center,
-                          child: SizedBox(
-                            width: 0.5.sw,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [gradientStart, gradientEnd],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                                borderRadius: BorderRadius.circular(30.r),
-                              ),
-                              child: ElevatedButton(
-                                child: Text(
-                                  "Login",
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16.sp),
-                                ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.transparent,
-                                  shadowColor: Colors.transparent,
-                                  padding: EdgeInsets.symmetric(vertical: 14.h),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30.r)),
-                                ),
-                                onPressed: _login,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                  /// Title
+                  Text(
+                    "Welcome Back",
+                    style: TextStyle(
+                      fontSize: isWeb ? 32 : 28.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
-                ),
-              ],
+                  SizedBox(height: 10.h),
+                  Text(
+                    "Login to continue",
+                    style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: isWeb ? 18 : 16.sp),
+                  ),
+                  SizedBox(height: 0.05.sh),
+
+                  /// --- Login Box ---
+                  Container(
+                    width: isWeb ? 450 : 1.sw, // ✅ web par fixed width
+                    margin: EdgeInsets.symmetric(horizontal: isWeb ? 0 : 24.w),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 24.w, vertical: isWeb ? 32 : 28.h),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18.r),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.15),
+                          blurRadius: 10.r,
+                          offset: const Offset(0, 4),
+                        )
+                      ],
+                    ),
+                    child: Form(
+                      key: _formKey,
+                      autovalidateMode: _isSubmitted
+                          ? AutovalidateMode.onUserInteraction
+                          : AutovalidateMode.disabled,
+                      child: Column(
+                        children: [
+                          /// Email Field
+                          TextFormField(
+                            controller: _emailController,
+                            validator: _validateEmail,
+                            decoration: InputDecoration(
+                              labelText: "Email",
+                              prefixIcon: Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Image.asset(
+                                  'assets/icons/email.png',
+                                  width: 20,
+                                  height: 20,
+                                ),
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey[100],
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.r),
+                                borderSide: const BorderSide(
+                                    color: gradientStart, width: 1.5),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 16.h),
+
+                          /// Password Field
+                          TextFormField(
+                            controller: _passwordController,
+                            validator: _validatePassword,
+                            obscureText: _obscurePassword,
+                            decoration: InputDecoration(
+                              labelText: "Password",
+                              prefixIcon: Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Image.asset(
+                                  'assets/icons/lock.png',
+                                  width: 20,
+                                  height: 20,
+                                ),
+                              ),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_off
+                                      : Icons.visibility,
+                                  color: Colors.grey,
+                                ),
+                                onPressed: () => setState(
+                                        () => _obscurePassword = !_obscurePassword),
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey[100],
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.r),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.r),
+                                borderSide: const BorderSide(
+                                    color: gradientStart, width: 1.5),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 20.h),
+
+                          /// Login Button
+                          Align(
+                            alignment: Alignment.center,
+                            child: SizedBox(
+                              width: isWeb ? 200 : 0.5.sw,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [gradientStart, gradientEnd],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(30.r),
+                                ),
+                                child: ElevatedButton(
+                                  child: Text(
+                                    "Login",
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: isWeb ? 18 : 16.sp),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.transparent,
+                                    shadowColor: Colors.transparent,
+                                    padding:
+                                    EdgeInsets.symmetric(vertical: 14.h),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                        BorderRadius.circular(30.r)),
+                                  ),
+                                  onPressed: _login,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

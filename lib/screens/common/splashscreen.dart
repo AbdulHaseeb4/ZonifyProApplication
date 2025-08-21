@@ -36,10 +36,30 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    // ✅ Responsive breakpoints
+    double logoSize;
+    double fontSize;
+
+    if (screenWidth < 600) {
+      // Mobile
+      logoSize = 140.w;
+      fontSize = 14.sp;
+    } else if (screenWidth < 1100) {
+      // Tablet
+      logoSize = 200;
+      fontSize = 16;
+    } else {
+      // Desktop/Web
+      logoSize = 260;
+      fontSize = 18;
+    }
+
     return Scaffold(
       body: Container(
-        width: 1.sw,  // full screen width (responsive)
-        height: 1.sh, // full screen height (responsive)
+        width: 1.sw,
+        height: 1.sh,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xFF2196F3), Color(0xFF90CAF9)],
@@ -49,21 +69,21 @@ class _SplashScreenState extends State<SplashScreen>
         ),
         child: Stack(
           children: [
-            // --- Center Logo with scale animation ---
+            /// --- Center Logo with scale animation ---
             Center(
               child: ScaleTransition(
                 scale: _animation,
                 child: Image.asset(
                   'assets/images/logo1.png',
-                  width: 180.w,  // responsive
-                  height: 180.w, // maintain aspect ratio based on width
+                  width: logoSize,
+                  height: logoSize,
                 ),
               ),
             ),
 
-            // --- Bottom Powered By ---
+            /// --- Bottom Powered By ---
             Positioned(
-              bottom: 40.h, // responsive bottom padding
+              bottom: 40.h,
               left: 0,
               right: 0,
               child: Text(
@@ -71,7 +91,7 @@ class _SplashScreenState extends State<SplashScreen>
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: Colors.white70,
-                  fontSize: 14.sp, // responsive font size
+                  fontSize: fontSize,
                 ),
               ),
             ),
