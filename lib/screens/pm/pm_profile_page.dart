@@ -55,9 +55,31 @@ class _PMProfilePageState extends State<PMProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F8),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.w),
-        child: widget.changePasswordOnly ? _buildChangePasswordUI() : _buildProfileUI(),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          bool isWide = constraints.maxWidth > 800; // breakpoint for web
+
+          return Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1200),
+              child: SingleChildScrollView(
+                padding: EdgeInsets.all(20.w),
+                child: widget.changePasswordOnly
+                    ? _buildResponsiveChangePasswordUI(isWide)
+                    : isWide
+                    ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(flex: 1, child: _buildTopProfileCard()),
+                    SizedBox(width: 25.w),
+                    Expanded(flex: 2, child: _buildAccountDetailsCard()),
+                  ],
+                )
+                    : _buildProfileUI(),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -198,7 +220,16 @@ class _PMProfilePageState extends State<PMProfilePage> {
     );
   }
 
-  /// -------- Change Password UI --------
+  /// -------- Change Password UI (responsive) --------
+  Widget _buildResponsiveChangePasswordUI(bool isWide) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: isWide ? 500 : double.infinity),
+        child: _buildChangePasswordUI(),
+      ),
+    );
+  }
+
   Widget _buildChangePasswordUI() {
     return Container(
       padding: EdgeInsets.all(20.w),
