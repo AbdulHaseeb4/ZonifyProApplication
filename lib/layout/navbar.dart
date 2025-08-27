@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'; // for kIsWeb
 import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart'; // ✅ GoRouter import
 import '../../core/theme.dart';
+import '../../main.dart'; // ✅ rootScaffoldMessengerKey access
 
 class Navbar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -81,7 +83,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: AppTheme.lavender.withValues(alpha: 0.1), // ✅ FIXED
+              color: AppTheme.lavender.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -107,16 +109,17 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
             offset: const Offset(0, 50),
             onSelected: (value) {
               if (value == "profile") {
-                ScaffoldMessenger.of(context).showSnackBar(
+                rootScaffoldMessengerKey.currentState?.showSnackBar(
                   const SnackBar(content: Text("Edit Profile clicked")),
                 );
               } else if (value == "logout") {
-                // ✅ logout → go login page with flag + role
-                Navigator.pushNamedAndRemoveUntil(
-                  context,
-                  "/login",
-                  (route) => false,
-                  arguments: {"loggedOut": true, "role": role}, // 👈 role send
+                // ✅ logout → GoRouter
+                context.go("/login");
+                rootScaffoldMessengerKey.currentState?.showSnackBar(
+                  SnackBar(
+                    content: Text("Logged out successfully as $role"),
+                    backgroundColor: Colors.green,
+                  ),
                 );
               }
             },

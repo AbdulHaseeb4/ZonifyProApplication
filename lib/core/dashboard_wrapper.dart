@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart'; // ✅ GoRouter import
+import '../main.dart'; // ✅ global key access
 
 class DashboardWrapper extends StatefulWidget {
   final Widget child;
@@ -22,15 +24,17 @@ class _DashboardWrapperState extends State<DashboardWrapper> {
     super.didChangeDependencies();
 
     if (!_messageShown) {
-      final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+      // ✅ GoRouter mai arguments ModalRoute se nahi milte
+      final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
 
-      final role = args?["role"] ?? widget.defaultRole;
-      final showMessage = args?["showMessage"] ?? false;
+      final role = extra?["role"] ?? widget.defaultRole;
+      final showMessage = extra?["showMessage"] ?? false;
 
       if (showMessage) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
+            // ✅ ab global key se snackbar trigger hoga
+            rootScaffoldMessengerKey.currentState?.showSnackBar(
               SnackBar(
                 content: Text("Login Successful as $role"),
                 backgroundColor: Colors.green,

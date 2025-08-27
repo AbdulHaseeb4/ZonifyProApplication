@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart'; // ✅ go_router import
 import '../../../core/theme.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -43,8 +44,8 @@ class _SplashScreenState extends State<SplashScreen>
     Future.delayed(const Duration(seconds: 3), () {
       if (!mounted) return;
 
-      // ✅ Ab yahan named route use karenge
-      Navigator.pushReplacementNamed(context, "/login");
+      // ✅ GoRouter: replace navigation with context.go
+      context.go("/login");
     });
   }
 
@@ -68,7 +69,7 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final isMobile = size.width < 600;
-    final double fontSize = isMobile ? 32 : 54; // ✅ responsive font size
+    final double fontSize = isMobile ? 32 : 54;
 
     return Scaffold(
       backgroundColor: AppTheme.background,

@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart'; // ✅ GoRouter import
 import 'package:zonifypro/core/theme.dart';
 import 'package:zonifypro/layout/base_layout.dart';
 
 class ProductDetailPage extends StatelessWidget {
-  final Map<String, dynamic>? product;
-  const ProductDetailPage({super.key, this.product});
+  const ProductDetailPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final data = product ??
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    // ✅ GoRouter se productId aur full data
+    final state = GoRouterState.of(context);
+    final productId = state.pathParameters['id'];
+    final data = state.extra as Map<String, dynamic>?;
 
     if (data == null) {
       return BaseLayout(
@@ -17,10 +19,10 @@ class ProductDetailPage extends StatelessWidget {
         role: "pm",
         userName: "PM User",
         profileUrl: "",
-        child: const Center(
+        child: Center(
           child: Text(
-            "⚠️ No product data found.",
-            style: TextStyle(fontSize: 16, color: AppTheme.textSecondary),
+            "⚠️ No product data found for ID: $productId",
+            style: const TextStyle(fontSize: 16, color: AppTheme.textSecondary),
           ),
         ),
       );
@@ -36,7 +38,9 @@ class ProductDetailPage extends StatelessWidget {
         child: Card(
           color: AppTheme.card,
           elevation: 3,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -56,18 +60,27 @@ class ProductDetailPage extends StatelessWidget {
                 const SizedBox(height: 20),
 
                 // 📋 Product Info
-                Text("Product ID: ${data['productId']}",
-                    style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppTheme.textPrimary)),
+                Text(
+                  "Product ID: ${data['productId']}",
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
                 const SizedBox(height: 8),
-                Text("Seller: ${data['seller']}",
-                    style: const TextStyle(color: AppTheme.textSecondary)),
-                Text("Market: ${data['market']}",
-                    style: const TextStyle(color: AppTheme.textSecondary)),
-                Text("Keywords: ${data['keywords']}",
-                    style: const TextStyle(color: AppTheme.textSecondary)),
+                Text(
+                  "Seller: ${data['seller']}",
+                  style: const TextStyle(color: AppTheme.textSecondary),
+                ),
+                Text(
+                  "Market: ${data['market']}",
+                  style: const TextStyle(color: AppTheme.textSecondary),
+                ),
+                Text(
+                  "Keywords: ${data['keywords']}",
+                  style: const TextStyle(color: AppTheme.textSecondary),
+                ),
 
                 const Spacer(),
 
@@ -79,11 +92,14 @@ class ProductDetailPage extends StatelessWidget {
                       backgroundColor: AppTheme.mint,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 12),
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
                     ),
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => context.pop(), // ✅ GoRouter pop
                     child: const Text("Back"),
                   ),
                 ),

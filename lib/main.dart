@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'core/theme.dart';
 
-// Common Screens
+// ----------------- COMMON -----------------
 import 'screens/splash/screen/splash_screen.dart';
 import 'screens/auth/login/login_screen.dart';
 
-// Admin Screens
+// ----------------- ADMIN -----------------
 import 'screens/admin/dashboard/admin_dashboard.dart';
 
-// Manager Screens
+// ----------------- MANAGER -----------------
 import 'screens/manager/dashboard/manager_dashboard.dart';
 
-// PMM Screens
+// ----------------- PMM -----------------
 import 'screens/pmm/dashboard/pmm_dashboard.dart';
 
-// PM Screens
+// ----------------- PM -----------------
 import 'screens/pm/dashboard/pm_dashboard.dart';
 import 'screens/pm/orders/pm_orders.dart';
 import 'screens/pm/products/pm_products.dart';
@@ -24,7 +25,11 @@ import 'screens/pm/changepassword/pm_change_password.dart';
 import 'screens/pm/excel/pm_excel.dart';
 import 'screens/pm/pm_support.dart';
 import 'screens/pm/blacklist/pm_blacklist.dart';
-import 'screens/pm/products/product_detail_page.dart'; // ✅ Product details
+import 'screens/pm/products/product_detail_page.dart';
+
+// ✅ Global ScaffoldMessengerKey for SnackBars
+final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
 
 void main() {
   runApp(const ZonifyProApp());
@@ -35,79 +40,92 @@ class ZonifyProApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    final GoRouter router = GoRouter(
+      initialLocation: "/splash",
+      routes: [
+        // ----------------- COMMON -----------------
+        GoRoute(path: "/", builder: (context, state) => const SplashScreen()),
+        GoRoute(
+          path: "/splash",
+          builder: (context, state) => const SplashScreen(),
+        ),
+        GoRoute(
+          path: "/login",
+          builder: (context, state) => const LoginScreen(),
+        ),
+
+        // ----------------- ADMIN -----------------
+        GoRoute(
+          path: "/admin/dashboard",
+          builder: (context, state) => const AdminDashboardPage(),
+        ),
+
+        // ----------------- MANAGER -----------------
+        GoRoute(
+          path: "/manager/dashboard",
+          builder: (context, state) => const ManagerDashboardPage(),
+        ),
+
+        // ----------------- PMM -----------------
+        GoRoute(
+          path: "/pmm/dashboard",
+          builder: (context, state) => const PMMDashboardPage(),
+        ),
+
+        // ----------------- PM -----------------
+        GoRoute(
+          path: "/pm/dashboard",
+          builder: (context, state) => const PMDashboardPage(),
+        ),
+        GoRoute(
+          path: "/pm/orders",
+          builder: (context, state) => const PMOrdersPage(),
+        ),
+        GoRoute(
+          path: "/pm/products",
+          builder: (context, state) => const PMProductsPage(category: "All"),
+        ),
+        GoRoute(
+          path: "/pm/reservation",
+          builder: (context, state) => const PMReservationPage(),
+        ),
+        GoRoute(
+          path: "/pm/delay_refund",
+          builder: (context, state) => const PMDelayRefundPage(),
+        ),
+        GoRoute(
+          path: "/pm/change_password",
+          builder: (context, state) => const PMChangePasswordPage(),
+        ),
+        GoRoute(
+          path: "/pm/excel",
+          builder: (context, state) => const PMExcelPage(),
+        ),
+        GoRoute(
+          path: "/pm/support",
+          builder: (context, state) => const PMSupportPage(),
+        ),
+        GoRoute(
+          path: "/pm/blacklist",
+          builder: (context, state) => const PMBlacklistPage(),
+        ),
+
+        // ----------------- PM SUBPAGE (Dynamic Product Detail) -----------------
+        GoRoute(
+          path: "/pm/products/:id",
+          builder: (context, state) {
+            return const ProductDetailPage(); // ✅ product data state.extra se milega
+          },
+        ),
+      ],
+    );
+
+    return MaterialApp.router(
+      scaffoldMessengerKey: rootScaffoldMessengerKey, // ✅ attach key here
       title: 'ZonifyPro',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.themeData,
-      initialRoute: "/splash",
-
-      // ✅ Named Routes
-      routes: {
-        // ----------------- COMMON -----------------
-        "/": (context) => const SplashScreen(),
-        "/splash": (context) => const SplashScreen(),
-        "/login": (context) => const LoginScreen(),
-
-        // ----------------- ADMIN -----------------
-        "/admin/dashboard": (context) => const AdminDashboardPage(),
-        // 🔹 Future subpages for Admin
-        // "/admin/user_detail": (context) => const AdminUserDetailPage(),
-
-        // ----------------- MANAGER -----------------
-        "/manager/dashboard": (context) => const ManagerDashboardPage(),
-        // 🔹 Future subpages for Manager
-        // "/manager/report_detail": (context) => const ManagerReportDetailPage(),
-
-        // ----------------- PMM -----------------
-        "/pmm/dashboard": (context) => const PMMDashboardPage(),
-        // 🔹 Future subpages for PMM
-        // "/pmm/analysis_detail": (context) => const PMMAnalysisDetailPage(),
-
-        // ----------------- PM -----------------
-        "/pm/dashboard": (context) => const PMDashboardPage(),
-        "/pm/orders": (context) => const PMOrdersPage(),
-        "/pm/products": (context) => const PMProductsPage(category: "All"),
-        "/pm/reservation": (context) => const PMReservationPage(),
-        "/pm/delay_refund": (context) => const PMDelayRefundPage(),
-        "/pm/change_password": (context) => const PMChangePasswordPage(),
-        "/pm/excel": (context) => const PMExcelPage(),
-        "/pm/support": (context) => const PMSupportPage(),
-        "/pm/blacklist": (context) => const PMBlacklistPage(),
-      },
-
-      // ✅ Dynamic Routes (subpages with arguments)
-      onGenerateRoute: (settings) {
-        switch (settings.name) {
-          // ----------------- PM SUBPAGES -----------------
-          case "/pm/products/product_detail":
-            final product = settings.arguments as Map<String, dynamic>;
-            return MaterialPageRoute(
-              builder: (_) => ProductDetailPage(product: product),
-            );
-
-          // ----------------- Future PM subpages -----------------
-          // case "/pm/orders/order_detail":
-          //   final order = settings.arguments as Map<String, dynamic>;
-          //   return MaterialPageRoute(
-          //     builder: (_) => PMOrderDetailPage(order: order),
-          //   );
-
-          // case "/pm/reservation/reservation_detail":
-          //   final reservation = settings.arguments as Map<String, dynamic>;
-          //   return MaterialPageRoute(
-          //     builder: (_) => PMReservationDetailPage(reservation: reservation),
-          //   );
-
-          // case "/pm/support/ticket_detail":
-          //   final ticket = settings.arguments as Map<String, dynamic>;
-          //   return MaterialPageRoute(
-          //     builder: (_) => PMSupportTicketDetailPage(ticket: ticket),
-          //   );
-
-          default:
-            return null; // fallback handled by routes
-        }
-      },
+      routerConfig: router,
     );
   }
 }

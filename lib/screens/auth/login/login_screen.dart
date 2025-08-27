@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/theme.dart';
+import '../../../main.dart'; // 👈 rootScaffoldMessengerKey access karne ke liye
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,31 +17,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _isHovered = false;
   bool _isPressed = false;
-  bool _logoutMessageShown = false; // ✅ flag added
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    final args =
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
-
-    if (!_logoutMessageShown && args?["loggedOut"] == true) {
-      final role = args?["role"] ?? "User"; // 👈 pick role from args
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("Logged out successfully as $role"),
-              backgroundColor: Colors.green,
-            ),
-          );
-        }
-      });
-
-      _logoutMessageShown = true; // ✅ ensure one time only
-    }
-  }
 
   void _login(String email, String password) {
     String? targetRoute;
@@ -60,13 +37,17 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     if (targetRoute != null && role != null) {
-      Navigator.pushReplacementNamed(
-        context,
-        targetRoute,
-        arguments: {"role": role, "showMessage": true},
+      context.go(targetRoute);
+
+      // ✅ global snackbar
+      rootScaffoldMessengerKey.currentState?.showSnackBar(
+        SnackBar(
+          content: Text("Login Successful as $role"),
+          backgroundColor: Colors.green,
+        ),
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
+      rootScaffoldMessengerKey.currentState?.showSnackBar(
         const SnackBar(
           content: Text("❌ Invalid credentials"),
           backgroundColor: AppTheme.peach,
@@ -94,12 +75,12 @@ class _LoginScreenState extends State<LoginScreen> {
               border: Border.all(color: const Color(0xFFE5E6EF), width: 1),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06), // ✅ FIX
+                  color: Colors.black.withValues(alpha: 0.06),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.02), // ✅ FIX
+                  color: Colors.black.withValues(alpha: 0.02),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -108,7 +89,6 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Branding
                 Text(
                   "ZonifyPro",
                   style: GoogleFonts.poppins(
@@ -219,7 +199,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               : 1.0,
                           1.0,
                           1.0,
-                        ), // ✅ FIX
+                        ),
                       padding: EdgeInsets.symmetric(
                         horizontal: isMobile ? 18 : 22,
                         vertical: isMobile ? 10 : 12,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart'; // ✅ GoRouter import
 import 'package:zonifypro/core/theme.dart';
 
 class Sidebar extends StatelessWidget {
@@ -17,7 +18,9 @@ class Sidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final menuItems = _getMenuItems(role);
-    final currentRoute = ModalRoute.of(context)?.settings.name;
+    final currentRoute = GoRouterState.of(
+      context,
+    ).uri.toString(); // ✅ current path
 
     return Drawer(
       width: 230,
@@ -71,17 +74,18 @@ class Sidebar extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 children: menuItems.map((item) {
-                  final isActive = currentRoute == item['route'];
+                  final route = item['route'] as String;
+                  final isActive = currentRoute == route;
 
                   return _SidebarTile(
                     icon: item['icon'],
                     text: item['text'],
                     isActive: isActive,
                     onTap: () {
-                      Navigator.pop(context);
-                      if (currentRoute != item['route']) {
-                        // ✅ Replace instead of push
-                        Navigator.pushNamed(context, item['route'] as String);
+                      Navigator.pop(context); // ✅ drawer close
+                      if (!isActive) {
+                        // ✅ use GoRouter navigation
+                        context.go(route);
                       }
                     },
                   );
@@ -214,13 +218,6 @@ class _SidebarTileState extends State<_SidebarTile> {
                 )
               : null,
         ),
-        transform: Matrix4.identity()
-          ..scaleByDouble(
-            _isHovered ? 1.04 : 1.0,
-            _isHovered ? 1.04 : 1.0,
-            1.0,
-            1.0,
-          ),
         child: ListTile(
           dense: true,
           horizontalTitleGap: 8,
