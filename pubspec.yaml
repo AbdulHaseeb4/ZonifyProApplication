@@ -1,0 +1,69 @@
+name: zonifypro
+description: "A new Flutter project."
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.0
+
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  intl: ^0.20.2
+  floating_navbar: ^3.0.0
+  flutter_screenutil: ^5.9.3
+  fl_chart: ^1.0.0
+  go_router: ^16.2.0
+  equatable: ^2.0.7
+  image_picker: ^1.2.0
+  google_fonts: ^6.3.0
+  path_provider: ^2.1.5
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  responsive_framework: ^1.5.1
+  flutter_launcher_icons: ^0.14.4
+  flutter_lints: ^6.0.0
+
+
+flutter:
+
+  uses-material-design: true
+
+  assets:
+    - assets/images/logo.gif
+    - assets/images/logo1.png
+    - assets/images/profile.png
+    - assets/images/bg.jpg
+    - assets/images/sample.jpeg
+    - assets/images/bg.png
+    - assets/icons/app_icon.png
+    - assets/icons/dashboard.png
+    - assets/icons/notification.png
+    - assets/icons/add.png
+    - assets/icons/mail.png
+    - assets/icons/profile.png
+    - assets/icons/menu.png
+    - assets/icons/manager.png
+    - assets/icons/pmm.png
+    - assets/icons/pm.png
+    - assets/icons/orders.png
+    - assets/icons/refund.png
+    - assets/icons/money.png
+    - assets/icons/review.png
+    - assets/icons/delay.png
+    - assets/icons/delete.png
+    - assets/icons/lock.png
+    - assets/icons/email.png
+    - assets/icons/eye.png
+    - assets/icons/login.png
+    - assets/sounds/delete.mp3
+  
