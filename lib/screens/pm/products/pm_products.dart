@@ -580,9 +580,10 @@ class _PMProductsPageState extends State<PMProductsPage> {
                   ),
                   ElevatedButton(
                     onPressed: () {
+                      final id = p['productId']; // productId nikalna
                       context.push(
-                        "/pm/products/${p['productId']}", // ✅ URL mai productId
-                        extra: p, // ✅ full product data
+                        "/pm/products/$id", // URL mai productId
+                        extra: p, // poora product data bhi bhejna
                       );
                     },
                     style: ElevatedButton.styleFrom(

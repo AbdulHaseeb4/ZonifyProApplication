@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart'; // ✅ GoRouter import
 import 'package:zonifypro/core/theme.dart';
 import 'package:zonifypro/layout/base_layout.dart';
 
 class ProductDetailPage extends StatelessWidget {
-  const ProductDetailPage({super.key});
+  final Map<String, dynamic>? product;
+  final String? productId; // ✅ add this
+
+  const ProductDetailPage({
+    super.key,
+    this.product,
+    this.productId,
+  }); // ✅ include
 
   @override
   Widget build(BuildContext context) {
-    // ✅ GoRouter se productId aur full data
-    final state = GoRouterState.of(context);
-    final productId = state.pathParameters['id'];
-    final data = state.extra as Map<String, dynamic>?;
+    final data =
+        product ??
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
     if (data == null) {
       return BaseLayout(
@@ -21,8 +26,9 @@ class ProductDetailPage extends StatelessWidget {
         profileUrl: "",
         child: Center(
           child: Text(
-            "⚠️ No product data found for ID: $productId",
+            "⚠️ No product data found.\n(Product ID: ${productId ?? "Unknown"})",
             style: const TextStyle(fontSize: 16, color: AppTheme.textSecondary),
+            textAlign: TextAlign.center,
           ),
         ),
       );
@@ -61,7 +67,7 @@ class ProductDetailPage extends StatelessWidget {
 
                 // 📋 Product Info
                 Text(
-                  "Product ID: ${data['productId']}",
+                  "Product ID: ${data['productId'] ?? productId}",
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -99,7 +105,7 @@ class ProductDetailPage extends StatelessWidget {
                         vertical: 12,
                       ),
                     ),
-                    onPressed: () => context.pop(), // ✅ GoRouter pop
+                    onPressed: () => Navigator.pop(context),
                     child: const Text("Back"),
                   ),
                 ),

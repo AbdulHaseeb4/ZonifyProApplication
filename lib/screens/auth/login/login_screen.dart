@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/theme.dart';
-import '../../../main.dart'; // 👈 rootScaffoldMessengerKey access karne ke liye
+import '../../../main.dart'; // 👈 rootScaffoldMessengerKey + isLoggedIn access ke liye
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -37,6 +37,9 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     if (targetRoute != null && role != null) {
+      isLoggedIn = true; // ✅ flag set
+      loggedInRole = role; // ✅ role bhi set kiya
+
       context.go(targetRoute);
 
       // ✅ global snackbar

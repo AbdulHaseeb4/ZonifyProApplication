@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 import 'core/theme.dart';
 
 // ----------------- COMMON -----------------
@@ -31,7 +32,12 @@ import 'screens/pm/products/product_detail_page.dart';
 final GlobalKey<ScaffoldMessengerState> rootScaffoldMessengerKey =
     GlobalKey<ScaffoldMessengerState>();
 
+// ✅ Simple auth state
+bool isLoggedIn = false;
+String? loggedInRole; // 👈 user ka role store karenge
+
 void main() {
+  usePathUrlStrategy(); // ✅ Web ke liye clean URLs
   runApp(const ZonifyProApp());
 }
 
@@ -42,6 +48,38 @@ class ZonifyProApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final GoRouter router = GoRouter(
       initialLocation: "/splash",
+
+      // ✅ redirect logic (auth guard)
+      redirect: (context, state) {
+        final goingTo = state.fullPath ?? "";
+
+        if (!isLoggedIn &&
+            (goingTo.startsWith("/pm") ||
+                goingTo.startsWith("/admin") ||
+                goingTo.startsWith("/manager") ||
+                goingTo.startsWith("/pmm"))) {
+          return "/login";
+        }
+
+        if (isLoggedIn &&
+            (goingTo == "/login" || goingTo == "/splash" || goingTo == "/")) {
+          switch (loggedInRole) {
+            case "admin":
+              return "/admin/dashboard";
+            case "manager":
+              return "/manager/dashboard";
+            case "pmm":
+              return "/pmm/dashboard";
+            case "pm":
+              return "/pm/dashboard";
+            default:
+              return "/login";
+          }
+        }
+
+        return null;
+      },
+
       routes: [
         // ----------------- COMMON -----------------
         GoRoute(path: "/", builder: (context, state) => const SplashScreen()),
@@ -81,10 +119,23 @@ class ZonifyProApp extends StatelessWidget {
           path: "/pm/orders",
           builder: (context, state) => const PMOrdersPage(),
         ),
+
+        // 👇 Products with nested detail route
         GoRoute(
           path: "/pm/products",
           builder: (context, state) => const PMProductsPage(category: "All"),
+          routes: [
+            GoRoute(
+              path: ":id", // ✅ nested dynamic route
+              builder: (context, state) {
+                final id = state.pathParameters['id'] ?? "";
+                final data = state.extra as Map<String, dynamic>?;
+                return ProductDetailPage(product: data, productId: id);
+              },
+            ),
+          ],
         ),
+
         GoRoute(
           path: "/pm/reservation",
           builder: (context, state) => const PMReservationPage(),
@@ -109,19 +160,11 @@ class ZonifyProApp extends StatelessWidget {
           path: "/pm/blacklist",
           builder: (context, state) => const PMBlacklistPage(),
         ),
-
-        // ----------------- PM SUBPAGE (Dynamic Product Detail) -----------------
-        GoRoute(
-          path: "/pm/products/:id",
-          builder: (context, state) {
-            return const ProductDetailPage(); // ✅ product data state.extra se milega
-          },
-        ),
       ],
     );
 
     return MaterialApp.router(
-      scaffoldMessengerKey: rootScaffoldMessengerKey, // ✅ attach key here
+      scaffoldMessengerKey: rootScaffoldMessengerKey,
       title: 'ZonifyPro',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.themeData,

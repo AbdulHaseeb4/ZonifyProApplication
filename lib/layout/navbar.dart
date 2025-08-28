@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart'; // for kIsWeb
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart'; // ✅ GoRouter import
 import '../../core/theme.dart';
-import '../../main.dart'; // ✅ rootScaffoldMessengerKey access
+import '../../main.dart'; // ✅ rootScaffoldMessengerKey + isLoggedIn access
 
 class Navbar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -113,8 +113,10 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
                   const SnackBar(content: Text("Edit Profile clicked")),
                 );
               } else if (value == "logout") {
-                // ✅ logout → GoRouter
+                isLoggedIn = false; // ✅ mark user logged out
+                loggedInRole = null; // ✅ role reset
                 context.go("/login");
+
                 rootScaffoldMessengerKey.currentState?.showSnackBar(
                   SnackBar(
                     content: Text("Logged out successfully as $role"),
