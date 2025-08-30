@@ -1,98 +1,118 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:go_router/go_router.dart'; // ✅ GoRouter import
-import 'package:zonifypro/core/theme.dart';
+import 'package:go_router/go_router.dart';
 
-class Sidebar extends StatelessWidget {
-  final String role;
-  final String userName;
-  final String? profileUrl;
+import '../../core/theme.dart';
+import '../../providers/auth_provider.dart';
 
-  const Sidebar({
-    super.key,
-    required this.role,
-    required this.userName,
-    this.profileUrl,
-  });
+class Sidebar extends ConsumerWidget {
+  const Sidebar({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final menuItems = _getMenuItems(role);
-    final currentRoute = GoRouterState.of(
-      context,
-    ).uri.toString(); // ✅ current path
+  Widget build(BuildContext context, WidgetRef ref) {
+    final appUserAsync = ref.watch(appUserProvider);
+    final currentRoute = GoRouterState.of(context).uri.toString();
 
     return Drawer(
       width: 230,
       child: Container(
         color: Colors.white,
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 18),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [AppTheme.lavender, AppTheme.mint],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 20,
-                    backgroundImage:
-                        (profileUrl != null && profileUrl!.isNotEmpty)
-                        ? NetworkImage(profileUrl!)
-                        : null,
-                    backgroundColor: Colors.white24,
-                    child: (profileUrl == null || profileUrl!.isEmpty)
-                        ? const Icon(
-                            Icons.person,
-                            color: Colors.white,
-                            size: 20,
-                          )
-                        : null,
+        child: appUserAsync.when(
+          data: (user) {
+            final role = user?.role ?? "guest";
+            final userName = user?.name ?? "User";
+            final profileUrl = user?.profileImage;
+
+            final menuItems = _getMenuItems(role);
+
+            return Column(
+              children: [
+                // 🔹 Profile Header
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 18,
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      userName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [AppTheme.lavender, AppTheme.mint],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
                   ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                children: menuItems.map((item) {
-                  final route = item['route'] as String;
-                  final isActive = currentRoute == route;
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 20,
+                        backgroundImage:
+                            (profileUrl != null && profileUrl.isNotEmpty)
+                            ? NetworkImage(profileUrl)
+                            : null,
+                        backgroundColor: Colors.white24,
+                        child: (profileUrl == null || profileUrl.isEmpty)
+                            ? const Icon(
+                                Icons.person,
+                                color: Colors.white,
+                                size: 20,
+                              )
+                            : null,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              userName,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.poppins(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
+                            Text(
+                              role.toUpperCase(),
+                              style: GoogleFonts.poppins(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.white70,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
 
-                  return _SidebarTile(
-                    icon: item['icon'],
-                    text: item['text'],
-                    isActive: isActive,
-                    onTap: () {
-                      Navigator.pop(context); // ✅ drawer close
-                      if (!isActive) {
-                        // ✅ use GoRouter navigation
-                        context.go(route);
-                      }
-                    },
-                  );
-                }).toList(),
-              ),
-            ),
-          ],
+                // 🔹 Menu Items
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    children: menuItems.map((item) {
+                      final route = item['route'] as String;
+                      final isActive = currentRoute == route;
+
+                      return _SidebarTile(
+                        icon: item['icon'],
+                        text: item['text'],
+                        isActive: isActive,
+                        onTap: () {
+                          Navigator.pop(context);
+                          if (!isActive) context.go(route);
+                        },
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (_, __) => const Center(child: Text("Error loading user")),
         ),
       ),
     );
@@ -162,6 +182,11 @@ class Sidebar extends StatelessWidget {
             "icon": Icons.dashboard,
             "text": "Dashboard",
             "route": "/admin/dashboard",
+          },
+          {
+            "icon": Icons.person_add,
+            "text": "Create User",
+            "route": "/admin/create_user",
           },
         ];
       default:

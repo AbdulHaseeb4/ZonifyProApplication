@@ -1,61 +1,59 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:go_router/go_router.dart';
-import '../../../core/theme.dart';
-import '../../../main.dart'; // 👈 rootScaffoldMessengerKey + isLoggedIn access ke liye
 
-class LoginScreen extends StatefulWidget {
+import '../../../core/theme.dart';
+import '../../../main.dart'; // rootScaffoldMessengerKey
+import '../../../providers/auth_provider.dart';
+
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
   bool _isHovered = false;
   bool _isPressed = false;
+  bool _isLoading = false;
 
-  void _login(String email, String password) {
-    String? targetRoute;
-    String? role;
+  Future<void> _login() async {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
 
-    if (email == "admin@test.com" && password == "12345") {
-      targetRoute = "/admin/dashboard";
-      role = "admin";
-    } else if (email == "manager@test.com" && password == "12345") {
-      targetRoute = "/manager/dashboard";
-      role = "manager";
-    } else if (email == "pmm@test.com" && password == "12345") {
-      targetRoute = "/pmm/dashboard";
-      role = "pmm";
-    } else if (email == "pm@test.com" && password == "12345") {
-      targetRoute = "/pm/dashboard";
-      role = "pm";
+    if (email.isEmpty || password.isEmpty) {
+      rootScaffoldMessengerKey.currentState?.showSnackBar(
+        const SnackBar(content: Text("⚠️ Please enter email & password")),
+      );
+      return;
     }
 
-    if (targetRoute != null && role != null) {
-      isLoggedIn = true; // ✅ flag set
-      loggedInRole = role; // ✅ role bhi set kiya
+    setState(() => _isLoading = true);
 
-      context.go(targetRoute);
+    try {
+      final loginAction = ref.read(loginProvider);
+      await loginAction(email, password);
 
-      // ✅ global snackbar
       rootScaffoldMessengerKey.currentState?.showSnackBar(
-        SnackBar(
-          content: Text("Login Successful as $role"),
+        const SnackBar(
+          content: Text("✅ Login Successful"),
           backgroundColor: Colors.green,
         ),
       );
-    } else {
+      // ⬆️ redirect role ke hisaab se router_provider handle karega
+    } catch (e) {
       rootScaffoldMessengerKey.currentState?.showSnackBar(
-        const SnackBar(
-          content: Text("❌ Invalid credentials"),
+        SnackBar(
+          content: Text("❌ Login Failed: $e"),
           backgroundColor: AppTheme.peach,
         ),
       );
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -180,16 +178,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     onTapDown: (_) => setState(() => _isPressed = true),
                     onTapUp: (_) => setState(() => _isPressed = false),
                     onTapCancel: () => setState(() => _isPressed = false),
-                    onTap: () {
-                      final email = emailController.text.trim();
-                      final password = passwordController.text.trim();
-                      _login(email, password);
-                    },
+                    onTap: _login,
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 180),
                       transformAlignment: Alignment.center,
                       transform: Matrix4.identity()
-                        ..scaleByDouble(
+                        ..scale(
                           _isPressed
                               ? 0.92
                               : _isHovered
@@ -200,8 +194,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               : _isHovered
                               ? 1.05
                               : 1.0,
-                          1.0,
-                          1.0,
                         ),
                       padding: EdgeInsets.symmetric(
                         horizontal: isMobile ? 18 : 22,
@@ -215,14 +207,16 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Text(
-                        "Login",
-                        style: GoogleFonts.poppins(
-                          fontSize: isMobile ? 13 : 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
-                      ),
+                      child: _isLoading
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : Text(
+                              "Login",
+                              style: GoogleFonts.poppins(
+                                fontSize: isMobile ? 13 : 14,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.white,
+                              ),
+                            ),
                     ),
                   ),
                 ),

@@ -4,13 +4,9 @@ import 'package:zonifypro/layout/base_layout.dart';
 
 class ProductDetailPage extends StatelessWidget {
   final Map<String, dynamic>? product;
-  final String? productId; // ✅ add this
+  final String? productId;
 
-  const ProductDetailPage({
-    super.key,
-    this.product,
-    this.productId,
-  }); // ✅ include
+  const ProductDetailPage({super.key, this.product, this.productId});
 
   @override
   Widget build(BuildContext context) {
@@ -21,9 +17,6 @@ class ProductDetailPage extends StatelessWidget {
     if (data == null) {
       return BaseLayout(
         title: "Product Details",
-        role: "pm",
-        userName: "PM User",
-        profileUrl: "",
         child: Center(
           child: Text(
             "⚠️ No product data found.\n(Product ID: ${productId ?? "Unknown"})",
@@ -36,9 +29,6 @@ class ProductDetailPage extends StatelessWidget {
 
     return BaseLayout(
       title: "Product Details",
-      role: "pm",
-      userName: "PM User",
-      profileUrl: "",
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Card(

@@ -8,14 +8,8 @@ class PMBlacklistPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return const BaseLayout(
       title: "Blacklist",
-      role: "pm",
-      userName: "PM User",
-      profileUrl: "",
       child: Center(
-        child: Text(
-          "PM Blacklist Page",
-          style: TextStyle(fontSize: 18),
-        ),
+        child: Text("PM Blacklist Page", style: TextStyle(fontSize: 18)),
       ),
     );
   }

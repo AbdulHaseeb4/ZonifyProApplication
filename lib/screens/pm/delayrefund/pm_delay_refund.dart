@@ -8,14 +8,8 @@ class PMDelayRefundPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return const BaseLayout(
       title: "Delay Refund",
-      role: "pm",
-      userName: "PM User",
-      profileUrl: "",
       child: Center(
-        child: Text(
-          "PM Delay Refund Page",
-          style: TextStyle(fontSize: 18),
-        ),
+        child: Text("PM Delay Refund Page", style: TextStyle(fontSize: 18)),
       ),
     );
   }

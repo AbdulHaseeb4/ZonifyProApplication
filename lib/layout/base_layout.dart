@@ -1,29 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'navbar.dart';
 import 'sidebar.dart';
 
-class BaseLayout extends StatefulWidget {
+class BaseLayout extends ConsumerStatefulWidget {
   final String title;
-  final String role;
-  final String userName;
-  final String? profileUrl;
   final Widget child;
 
-  const BaseLayout({
-    super.key,
-    required this.title,
-    required this.role,
-    required this.userName,
-    this.profileUrl,
-    required this.child,
-  });
+  const BaseLayout({super.key, required this.title, required this.child});
 
   @override
-  State<BaseLayout> createState() => _BaseLayoutState();
+  ConsumerState<BaseLayout> createState() => _BaseLayoutState();
 }
 
-class _BaseLayoutState extends State<BaseLayout> {
-  // 👇 Har BaseLayout apna unique Scaffold key rakhega
+class _BaseLayoutState extends ConsumerState<BaseLayout> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -32,14 +23,9 @@ class _BaseLayoutState extends State<BaseLayout> {
       key: _scaffoldKey,
       appBar: Navbar(
         title: widget.title,
-        role: widget.role,
         onMenuTap: () => _scaffoldKey.currentState?.openDrawer(),
       ),
-      drawer: Sidebar(
-        role: widget.role,
-        userName: widget.userName,
-        profileUrl: widget.profileUrl,
-      ),
+      drawer: const Sidebar(),
       body: SafeArea(child: widget.child),
     );
   }

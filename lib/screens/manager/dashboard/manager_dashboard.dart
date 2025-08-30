@@ -10,10 +10,7 @@ class ManagerDashboardPage extends StatelessWidget {
     return const DashboardWrapper(
       defaultRole: "manager",
       child: BaseLayout(
-        title: "Dashboard",
-        role: "manager",
-        userName: "Manager",
-        profileUrl: "",
+        title: "Manager Dashboard",
         child: Center(
           child: Text(
             "Welcome to Manager Dashboard",

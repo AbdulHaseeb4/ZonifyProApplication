@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:go_router/go_router.dart'; // ✅ go_router import
 import '../../../core/theme.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -12,56 +11,54 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
-  late AnimationController _proController;
-  late Animation<double> _proScale;
-  bool _showPro = false;
-
-  String _syncText = "";
-  final String _syncFull = "Pro";
+  late AnimationController _controller;
+  late Animation<double> _bounce;
+  bool _showZonify = false;
+  String _typedPro = "";
+  final String _fullPro = "Pro";
 
   @override
   void initState() {
     super.initState();
 
-    _proController = AnimationController(
+    _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
 
-    _proScale = Tween<double>(begin: 0.5, end: 1.0).animate(
-      CurvedAnimation(parent: _proController, curve: Curves.elasticOut),
-    );
+    _bounce = Tween<double>(
+      begin: 0.5,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
 
+    // Step 1: Bounce animation
     Future.delayed(const Duration(milliseconds: 300), () {
-      setState(() => _showPro = true);
-      _proController.forward();
-    });
-
-    Future.delayed(const Duration(milliseconds: 1200), () {
-      _startTypingSync();
-    });
-
-    Future.delayed(const Duration(seconds: 3), () {
       if (!mounted) return;
-
-      // ✅ GoRouter: replace navigation with context.go
-      context.go("/login");
+      setState(() => _showZonify = true);
+      _controller.forward();
     });
+
+    // Step 2: Typing animation for "Pro"
+    Future.delayed(const Duration(milliseconds: 1200), () {
+      _startTypingPro();
+    });
+
+    // ⛔ NOTE: No redirect here anymore, router handles it
   }
 
-  void _startTypingSync() async {
-    for (int i = 0; i < _syncFull.length; i++) {
-      await Future.delayed(const Duration(milliseconds: 120));
+  void _startTypingPro() async {
+    for (int i = 0; i < _fullPro.length; i++) {
+      await Future.delayed(const Duration(milliseconds: 180));
       if (!mounted) return;
       setState(() {
-        _syncText = _syncFull.substring(0, i + 1);
+        _typedPro = _fullPro.substring(0, i + 1);
       });
     }
   }
 
   @override
   void dispose() {
-    _proController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -77,9 +74,9 @@ class _SplashScreenState extends State<SplashScreen>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (_showPro)
+            if (_showZonify)
               ScaleTransition(
-                scale: _proScale,
+                scale: _bounce,
                 child: Text(
                   "Zonify",
                   style: GoogleFonts.poppins(
@@ -91,7 +88,7 @@ class _SplashScreenState extends State<SplashScreen>
                 ),
               ),
             Text(
-              _syncText,
+              _typedPro,
               style: GoogleFonts.poppins(
                 fontSize: fontSize,
                 fontWeight: FontWeight.w900,

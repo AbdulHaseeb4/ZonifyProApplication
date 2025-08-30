@@ -8,14 +8,8 @@ class PMSupportPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return const BaseLayout(
       title: "Support",
-      role: "pm",
-      userName: "PM User",
-      profileUrl: "",
       child: Center(
-        child: Text(
-          "PM Support Page",
-          style: TextStyle(fontSize: 18),
-        ),
+        child: Text("PM Support Page", style: TextStyle(fontSize: 18)),
       ),
     );
   }

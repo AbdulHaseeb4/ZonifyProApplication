@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart'; // ✅ added
+import 'package:go_router/go_router.dart';
 import 'package:zonifypro/core/theme.dart';
 import 'package:zonifypro/screens/pm/reservation/pm_reservation.dart';
 import 'package:zonifypro/layout/base_layout.dart';
@@ -171,9 +171,6 @@ class _PMProductsPageState extends State<PMProductsPage> {
 
     return BaseLayout(
       title: "Products",
-      role: "pm",
-      userName: "PM User",
-      profileUrl: "",
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -446,7 +443,6 @@ class _PMProductsPageState extends State<PMProductsPage> {
         "link": "https://example.com/electronics",
         "productId": "ELE-001",
       },
-      // ... baaki products bhi same
     ];
 
     List<Map<String, dynamic>> filteredProducts = selectedCategory == "All"
@@ -580,11 +576,8 @@ class _PMProductsPageState extends State<PMProductsPage> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      final id = p['productId']; // productId nikalna
-                      context.push(
-                        "/pm/products/$id", // URL mai productId
-                        extra: p, // poora product data bhi bhejna
-                      );
+                      final id = p['productId'];
+                      context.push("/pm/products/$id", extra: p);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.mint,

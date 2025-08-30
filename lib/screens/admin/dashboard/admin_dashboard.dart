@@ -10,10 +10,7 @@ class AdminDashboardPage extends StatelessWidget {
     return const DashboardWrapper(
       defaultRole: "admin",
       child: BaseLayout(
-        title: "Dashboard",
-        role: "admin",
-        userName: "Admin",
-        profileUrl: "",
+        title: "Admin Dashboard",
         child: Center(
           child: Text(
             "Welcome to Admin Dashboard",

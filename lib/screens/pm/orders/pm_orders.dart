@@ -8,14 +8,8 @@ class PMOrdersPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return const BaseLayout(
       title: "Orders",
-      role: "pm",
-      userName: "PM User",
-      profileUrl: "",
       child: Center(
-        child: Text(
-          "PM Orders Page",
-          style: TextStyle(fontSize: 18),
-        ),
+        child: Text("PM Orders Page", style: TextStyle(fontSize: 18)),
       ),
     );
   }

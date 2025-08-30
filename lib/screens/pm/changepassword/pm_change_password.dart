@@ -8,14 +8,8 @@ class PMChangePasswordPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return const BaseLayout(
       title: "Change Password",
-      role: "pm",
-      userName: "PM User",
-      profileUrl: "",
       child: Center(
-        child: Text(
-          "PM Change Password Page",
-          style: TextStyle(fontSize: 18),
-        ),
+        child: Text("PM Change Password Page", style: TextStyle(fontSize: 18)),
       ),
     );
   }

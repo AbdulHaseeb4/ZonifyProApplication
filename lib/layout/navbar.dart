@@ -1,26 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'; // for kIsWeb
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:go_router/go_router.dart'; // ✅ GoRouter import
+import 'package:go_router/go_router.dart';
+
 import '../../core/theme.dart';
-import '../../main.dart'; // ✅ rootScaffoldMessengerKey + isLoggedIn access
+import '../../main.dart'; // rootScaffoldMessengerKey
+import '../../providers/auth_provider.dart';
 
-class Navbar extends StatelessWidget implements PreferredSizeWidget {
+class Navbar extends ConsumerWidget implements PreferredSizeWidget {
   final String title;
-  final String role;
   final VoidCallback onMenuTap;
-  final String? profileImageUrl;
 
-  const Navbar({
-    super.key,
-    required this.title,
-    required this.role,
-    required this.onMenuTap,
-    this.profileImageUrl,
-  });
+  const Navbar({super.key, required this.title, required this.onMenuTap});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final appUserAsync = ref.watch(appUserProvider);
+
     final screenWidth = MediaQuery.of(context).size.width;
 
     return AppBar(
@@ -51,7 +48,7 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
           ),
           const SizedBox(width: 16),
 
-          // Branding (show only on web OR wide screen)
+          // Branding
           if (kIsWeb || screenWidth > 600) ...[
             Text(
               "ZonifyPro",
@@ -80,96 +77,122 @@ class Navbar extends StatelessWidget implements PreferredSizeWidget {
           const Spacer(),
 
           // Role Badge
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppTheme.lavender.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              role,
-              style: GoogleFonts.poppins(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: AppTheme.lavender,
+          appUserAsync.when(
+            data: (user) => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppTheme.lavender.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                (user?.role ?? "guest").toUpperCase(),
+                style: GoogleFonts.poppins(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: AppTheme.lavender,
+                ),
               ),
             ),
+            loading: () => const SizedBox.shrink(),
+            error: (_, __) => const SizedBox.shrink(),
           ),
 
           const SizedBox(width: 16),
 
           // 👤 Profile Dropdown
-          PopupMenuButton<String>(
-            tooltip: "Profile",
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            color: Colors.white,
-            elevation: 6,
-            offset: const Offset(0, 50),
-            onSelected: (value) {
-              if (value == "profile") {
-                rootScaffoldMessengerKey.currentState?.showSnackBar(
-                  const SnackBar(content: Text("Edit Profile clicked")),
-                );
-              } else if (value == "logout") {
-                isLoggedIn = false; // ✅ mark user logged out
-                loggedInRole = null; // ✅ role reset
-                context.go("/login");
+          appUserAsync.when(
+            data: (user) {
+              final logoutAction = ref.read(logoutProvider);
+              return PopupMenuButton<String>(
+                tooltip: "Profile",
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                color: Colors.white,
+                elevation: 6,
+                offset: const Offset(0, 50),
+                onSelected: (value) async {
+                  if (value == "profile") {
+                    rootScaffoldMessengerKey.currentState?.showSnackBar(
+                      const SnackBar(content: Text("Edit Profile clicked")),
+                    );
+                  } else if (value == "logout") {
+                    await logoutAction();
+                    context.go("/login");
 
-                rootScaffoldMessengerKey.currentState?.showSnackBar(
-                  SnackBar(
-                    content: Text("Logged out successfully as $role"),
-                    backgroundColor: Colors.green,
+                    rootScaffoldMessengerKey.currentState?.showSnackBar(
+                      const SnackBar(
+                        content: Text("Logged out successfully"),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: "profile",
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.person,
+                          size: 18,
+                          color: Colors.black54,
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          "Edit Profile",
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                );
-              }
+                  PopupMenuItem(
+                    value: "logout",
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.logout,
+                          size: 18,
+                          color: Colors.redAccent,
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          "Logout",
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.redAccent,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                child: CircleAvatar(
+                  radius: 18,
+                  backgroundColor: Colors.grey.shade200,
+                  backgroundImage:
+                      (user?.profileImage != null &&
+                          user!.profileImage!.isNotEmpty)
+                      ? NetworkImage(user.profileImage!)
+                      : null,
+                  child:
+                      (user?.profileImage == null ||
+                          user!.profileImage!.isEmpty)
+                      ? const Icon(Icons.person, color: Colors.black54)
+                      : null,
+                ),
+              );
             },
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: "profile",
-                child: Row(
-                  children: [
-                    const Icon(Icons.person, size: 18, color: Colors.black54),
-                    const SizedBox(width: 10),
-                    Text(
-                      "Edit Profile",
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: "logout",
-                child: Row(
-                  children: [
-                    const Icon(Icons.logout, size: 18, color: Colors.redAccent),
-                    const SizedBox(width: 10),
-                    Text(
-                      "Logout",
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.redAccent,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-            child: CircleAvatar(
+            loading: () =>
+                const CircleAvatar(radius: 18, backgroundColor: Colors.grey),
+            error: (_, __) => const CircleAvatar(
               radius: 18,
-              backgroundColor: Colors.grey.shade200,
-              backgroundImage:
-                  (profileImageUrl != null && profileImageUrl!.isNotEmpty)
-                  ? NetworkImage(profileImageUrl!)
-                  : null,
-              child: (profileImageUrl == null || profileImageUrl!.isEmpty)
-                  ? const Icon(Icons.person, color: Colors.black54)
-                  : null,
+              backgroundColor: Colors.grey,
+              child: Icon(Icons.error, color: Colors.red),
             ),
           ),
         ],

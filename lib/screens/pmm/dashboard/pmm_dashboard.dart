@@ -10,10 +10,7 @@ class PMMDashboardPage extends StatelessWidget {
     return const DashboardWrapper(
       defaultRole: "pmm",
       child: BaseLayout(
-        title: "Dashboard",
-        role: "pmm",
-        userName: "PMM",
-        profileUrl: "",
+        title: "PMM Dashboard",
         child: Center(
           child: Text(
             "Welcome to PMM Dashboard",
