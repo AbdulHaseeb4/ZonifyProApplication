@@ -24,7 +24,6 @@ class _DashboardWrapperState extends State<DashboardWrapper> {
     super.didChangeDependencies();
 
     if (!_messageShown) {
-      // ✅ GoRouter mai arguments ModalRoute se nahi milte
       final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
 
       final role = extra?["role"] ?? widget.defaultRole;
@@ -33,7 +32,6 @@ class _DashboardWrapperState extends State<DashboardWrapper> {
       if (showMessage) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
-            // ✅ ab global key se snackbar trigger hoga
             rootScaffoldMessengerKey.currentState?.showSnackBar(
               SnackBar(
                 content: Text("Login Successful as $role"),

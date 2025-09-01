@@ -1,5 +1,5 @@
 plugins {
-    // Google services plugin (Firebase ke liye)
+    // Google services plugin (Firebase ke liye, single unified version)
     id("com.google.gms.google-services") version "4.4.3" apply false
 }
 

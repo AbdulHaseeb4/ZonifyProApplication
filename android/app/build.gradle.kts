@@ -4,7 +4,7 @@ plugins {
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 
-    // 🔥 Add this line for Firebase
+    // Firebase Google Services plugin (version inherited from root/settings)
     id("com.google.gms.google-services")
 }
 
@@ -44,9 +44,9 @@ flutter {
 dependencies {
     implementation("androidx.appcompat:appcompat:1.4.0")
 
-    // 🔥 Firebase BOM (Bill of Materials)
+    // Firebase BOM (Bill of Materials)
     implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
 
-    // 🔥 Firebase Analytics (basic required, aur baad me Auth, Firestore add karenge)
+    // Firebase Analytics (baad me aur services add kar sakte ho)
     implementation("com.google.firebase:firebase-analytics")
 }
