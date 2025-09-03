@@ -1,5 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:zonifypro/screens/pmm/add_product/pmm_add_product.dart';
+import 'package:zonifypro/screens/pmm/change_pass/pmm_change_password.dart';
+import 'package:zonifypro/screens/pmm/delay_refund/pmm_delay_refund.dart';
+import 'package:zonifypro/screens/pmm/excel/pmm_excel.dart';
+import 'package:zonifypro/screens/pmm/orders/pmm_orders.dart';
+import 'package:zonifypro/screens/pmm/premium_products/pmm_premium_products.dart';
+import 'package:zonifypro/screens/pmm/products/pmm_products.dart';
+import 'package:zonifypro/screens/pmm/profile/pmm_profile.dart';
+import 'package:zonifypro/screens/pmm/reservation/pmm_reservation.dart';
+import 'package:zonifypro/screens/pmm/support/pmm_support.dart';
 
 // Providers
 import '../providers/auth_provider.dart';
@@ -97,6 +107,46 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: "/pmm/dashboard",
         builder: (context, state) => const PMMDashboardPage(),
+      ),
+      GoRoute(
+        path: "/pmm/orders",
+        builder: (context, state) => const PMMOrdersPage(),
+      ),
+      GoRoute(
+        path: "/pmm/products",
+        builder: (context, state) => const PMMProductsPage(),
+      ),
+      GoRoute(
+        path: "/pmm/add_product",
+        builder: (context, state) => const PMMAddProductPage(),
+      ),
+      GoRoute(
+        path: "/pmm/premium_products",
+        builder: (context, state) => const PMMPremiumProductsPage(),
+      ),
+      GoRoute(
+        path: "/pmm/reservation",
+        builder: (context, state) => const PMMReservationPage(),
+      ),
+      GoRoute(
+        path: "/pmm/change_password",
+        builder: (context, state) => const PMMChangePasswordPage(),
+      ),
+      GoRoute(
+        path: "/pmm/profile",
+        builder: (context, state) => const PMMProfilePage(),
+      ),
+      GoRoute(
+        path: "/pmm/excel",
+        builder: (context, state) => const PMMExcelPage(),
+      ),
+      GoRoute(
+        path: "/pmm/support",
+        builder: (context, state) => const PMMSupportPage(),
+      ),
+      GoRoute(
+        path: "/pmm/delay_refund",
+        builder: (context, state) => const PMMDelayRefundPage(),
       ),
 
       // PM

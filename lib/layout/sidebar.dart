@@ -167,7 +167,54 @@ class Sidebar extends ConsumerWidget {
             "text": "Dashboard",
             "route": "/pmm/dashboard",
           },
+          {
+            "icon": Icons.shopping_cart,
+            "text": "Orders",
+            "route": "/pmm/orders",
+          },
+          {
+            "icon": Icons.inventory,
+            "text": "Products",
+            "route": "/pmm/products",
+          },
+          {
+            "icon": Icons.add_box,
+            "text": "Add Product",
+            "route": "/pmm/add_product",
+          },
+          {
+            "icon": Icons.star,
+            "text": "Premium Products",
+            "route": "/pmm/premium_products",
+          },
+          {
+            "icon": Icons.bookmark_added,
+            "text": "Reservation",
+            "route": "/pmm/reservation",
+          },
+          {
+            "icon": Icons.lock_reset,
+            "text": "Change Password",
+            "route": "/pmm/change_password",
+          },
+          {
+            "icon": Icons.person,
+            "text": "User Profile",
+            "route": "/pmm/profile",
+          },
+          {"icon": Icons.table_view, "text": "Excel", "route": "/pmm/excel"},
+          {
+            "icon": Icons.support_agent,
+            "text": "Support",
+            "route": "/pmm/support",
+          },
+          {
+            "icon": Icons.timer,
+            "text": "Delay Refunds",
+            "route": "/pmm/delay_refund",
+          },
         ];
+
       case "manager":
         return [
           {
