@@ -28,6 +28,7 @@ class _PMMAddProductFormState extends State<PMMAddProductForm> {
     'Text Review',
     'Picture Review',
     'Video Review',
+    'FeedBackc',
     'All',
   ];
 
@@ -188,7 +189,6 @@ class _PMMAddProductFormState extends State<PMMAddProductForm> {
   }
 
   Widget _buildDropdown(String label, List<String> items) {
-    String? selectedValue;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: DropdownButtonFormField<String>(
@@ -204,9 +204,7 @@ class _PMMAddProductFormState extends State<PMMAddProductForm> {
           return DropdownMenuItem<String>(value: value, child: Text(value));
         }).toList(),
         onChanged: (newValue) {
-          setState(() {
-            selectedValue = newValue;
-          });
+          setState(() {});
         },
         validator: (value) => value == null ? 'Please select' : null,
       ),
