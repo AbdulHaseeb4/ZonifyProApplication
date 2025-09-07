@@ -28,6 +28,11 @@ class _PMMAddProductFormState extends State<PMMAddProductForm> {
   List<ImageProvider?> uploadedImages = [null, null, null, null];
   int selectedImageIndex = -1;
 
+  // Controllers for Product Conditions fields
+  final instructionsController = TextEditingController();
+  final refundController = TextEditingController();
+  final commissionController = TextEditingController();
+
   final Map<String, IconData> fieldIcons = {
     'keywords': Icons.search,
     'brand name': Icons.storefront,
@@ -40,10 +45,15 @@ class _PMMAddProductFormState extends State<PMMAddProductForm> {
     'seller type': Icons.group,
     'review type': Icons.reviews,
     'product commission': Icons.percent,
-    'select category': Icons.category, // ✅ Added
+    'select category': Icons.category,
   };
 
-  final List<String> dummyOptions = ['Option 1', 'Option 2', 'Option 3'];
+  final Map<String, List<String>> dropdownOptions = {
+    'select market': ['Amazon', 'Daraz', 'eBay', 'Walmart'],
+    'seller type': ['Individual', 'Company', 'Reseller'],
+    'review type': ['Manual Review', 'Auto Review', 'Verified Purchase'],
+    'select category': ['Electronics', 'Fashion', 'Beauty', 'Home & Kitchen'],
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -114,75 +124,152 @@ class _PMMAddProductFormState extends State<PMMAddProductForm> {
                 children: [
                   Expanded(
                     flex: 2,
-                    child: Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      elevation: 2,
-                      margin: const EdgeInsets.only(right: 10),
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Row(
+                    child: Column(
+                      children: [
+                        // Product Info Card
+                        Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 2,
+                          margin: const EdgeInsets.only(right: 10),
+                          child: Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(
-                                  Icons.info_outline,
-                                  size: 16,
-                                  color: Colors.black,
+                                const Row(
+                                  children: [
+                                    Icon(
+                                      Icons.info_outline,
+                                      size: 16,
+                                      color: Colors.black,
+                                    ),
+                                    SizedBox(width: 6),
+                                    Text(
+                                      'Product Info',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                SizedBox(width: 6),
-                                Text(
-                                  'Product Info',
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.black,
+                                const SizedBox(height: 12),
+                                Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[100],
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: const EdgeInsets.all(12),
+                                  child: Column(
+                                    children: [
+                                      build3FieldRow(
+                                        "Keywords",
+                                        "Brand Name",
+                                        "Sold By",
+                                      ),
+                                      const SizedBox(height: 10),
+                                      build3FieldRow(
+                                        "Product Link",
+                                        "Product Price",
+                                        "Sale Limit/Day",
+                                      ),
+                                      const SizedBox(height: 10),
+                                      build3FieldRow(
+                                        "Overall Sale Limit",
+                                        "Product Commission",
+                                        "Seller Type",
+                                      ),
+                                      const SizedBox(height: 10),
+                                      build3FieldRow(
+                                        "Review Type",
+                                        "Select Market",
+                                        "Select Category",
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 12),
-                            Container(
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[100],
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              padding: const EdgeInsets.all(12),
-                              child: Column(
-                                children: [
-                                  build3FieldRow(
-                                    "Keywords",
-                                    "Brand Name",
-                                    "Sold By",
-                                  ),
-                                  const SizedBox(height: 10),
-                                  build3FieldRow(
-                                    "Product Link",
-                                    "Product Price",
-                                    "Sale Limit/Day",
-                                  ),
-                                  const SizedBox(height: 10),
-                                  build3FieldRow(
-                                    "Overall Sale Limit",
-                                    "Product Commission",
-                                    "Seller Type",
-                                  ),
-                                  const SizedBox(height: 10),
-                                  build3FieldRow(
-                                    "Review Type",
-                                    "Select Market",
-                                    "Select Category",
-                                  ), // ✅ Changed
-                                ],
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
-                      ),
+
+                        // ✅ Product Conditions Card (Grey box + White fields)
+                        const SizedBox(height: 16),
+                        Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 2,
+                          margin: const EdgeInsets.only(right: 10),
+                          child: Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Row(
+                                  children: [
+                                    Icon(
+                                      Icons.rule,
+                                      size: 16,
+                                      color: Colors.black,
+                                    ),
+                                    SizedBox(width: 6),
+                                    Text(
+                                      'Product Conditions',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[100],
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: const EdgeInsets.all(12),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: _buildExpandingField(
+                                          instructionsController,
+                                          'Instructions',
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: _buildExpandingField(
+                                          refundController,
+                                          'Refund Conditions',
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: _buildExpandingField(
+                                          commissionController,
+                                          'Commission Conditions',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
+
+                  // Upload Images Card
                   Expanded(
                     flex: 1,
                     child: SizedBox(
@@ -427,9 +514,7 @@ class _PMMAddProductFormState extends State<PMMAddProductForm> {
           ),
         ),
         menuItemStyleData: MenuItemStyleData(
-          overlayColor: MaterialStatePropertyAll(
-            Color(0xFFEAF6FF),
-          ), // Hover effect
+          overlayColor: const MaterialStatePropertyAll(Color(0xFFEAF6FF)),
           selectedMenuItemBuilder: (context, child) => Container(
             decoration: BoxDecoration(
               color: const Color(0xFFD6ECFF),
@@ -442,7 +527,7 @@ class _PMMAddProductFormState extends State<PMMAddProductForm> {
         iconStyleData: const IconStyleData(
           icon: Icon(Icons.keyboard_arrow_down_rounded, size: 18),
         ),
-        items: dummyOptions.map((item) {
+        items: (dropdownOptions[lower] ?? []).map((item) {
           return DropdownMenuItem<String>(
             value: item,
             child: Text(item, style: const TextStyle(fontSize: 12)),
@@ -464,6 +549,24 @@ class _PMMAddProductFormState extends State<PMMAddProductForm> {
         ),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
         isDense: true,
+      ),
+      style: const TextStyle(fontSize: 12),
+    );
+  }
+
+  Widget _buildExpandingField(TextEditingController controller, String label) {
+    return TextField(
+      controller: controller,
+      minLines: 1,
+      maxLines: null,
+      keyboardType: TextInputType.multiline,
+      decoration: InputDecoration(
+        labelText: label,
+        alignLabelWithHint: true,
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.all(12),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
       style: const TextStyle(fontSize: 12),
     );
