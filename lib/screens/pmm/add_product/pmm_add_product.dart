@@ -23,225 +23,341 @@ class PMMAddProductForm extends StatefulWidget {
 
 class _PMMAddProductFormState extends State<PMMAddProductForm> {
   final _formKey = GlobalKey<FormState>();
-  final Set<String> selectedReviewTypes = {};
-  final List<String> reviewTypes = [
-    'Text Review',
-    'Picture Review',
-    'Video Review',
-    'FeedBackc',
-    'All',
-  ];
+
+  List<ImageProvider?> uploadedImages = [null, null, null, null];
+  int selectedImageIndex = -1;
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            _buildSectionCard(
-              icon: Icons.info_outline,
-              title: "Product Information",
-              children: [
-                _buildTextField("Keywords"),
-                _buildTextField("Brand Name"),
-                _buildTextField("Sold By"),
-                _buildTextField("Product Link"),
-                _buildDropdown("Seller Type", ["Individual", "Company"]),
-                _buildDropdown("Market", ["Daraz", "Amazon", "eBay"]),
-                _buildDropdown("Select Category", [
-                  "Electronics",
-                  "Fashion",
-                  "Home",
-                  "Toys",
-                ]),
-              ],
-            ),
-            const SizedBox(height: 20),
-            _buildSectionCard(
-              icon: Icons.reviews,
-              title: "Review Type",
-              children: [
-                Wrap(
-                  spacing: 10,
-                  children: reviewTypes.map((type) {
-                    return FilterChip(
-                      label: Text(type),
-                      selected: selectedReviewTypes.contains(type),
-                      onSelected: (selected) {
-                        setState(() {
-                          selected
-                              ? selectedReviewTypes.add(type)
-                              : selectedReviewTypes.remove(type);
-                        });
-                      },
-                    );
-                  }).toList(),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            _buildSectionCard(
-              icon: Icons.monetization_on,
-              title: "Commission & Limits",
-              children: [
-                _buildTextField("Product Commission"),
-                _buildTextField("Sale Limit Per Day"),
-                _buildTextField("Overall Sale Limit"),
-                _buildTextField("Product Price"),
-              ],
-            ),
-            const SizedBox(height: 20),
-            _buildSectionCard(
-              icon: Icons.policy,
-              title: "Product Policies",
-              children: [
-                _buildMultilineField("Field Instruction"),
-                _buildMultilineField("Refund Conditions"),
-                _buildMultilineField("Commission Conditions"),
-              ],
-            ),
-            const SizedBox(height: 20),
-            _buildSectionCard(
-              icon: Icons.image,
-              title: "Product Image",
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () {
-                    // TODO: Pick image
-                  },
-                  icon: const Icon(Icons.add_photo_alternate),
-                  label: const Text("Upload Image"),
-                ),
-              ],
-            ),
-            const SizedBox(height: 30),
-            Center(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 40,
-                    vertical: 16,
+    return Container(
+      color: const Color(0xFFF4F5F7),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // 🔹 HEADER
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: const [
+                      Icon(
+                        Icons.shopping_bag_outlined,
+                        size: 16,
+                        color: Colors.black,
+                      ),
+                      SizedBox(width: 6),
+                      Text(
+                        'Add New Product',
+                        style: TextStyle(fontSize: 13, color: Colors.black),
+                      ),
+                    ],
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      if (uploadedImages.every((img) => img == null)) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              "Please upload at least one product image",
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+                      // TODO: Proceed with form submission logic here
+                    },
+                    icon: const Icon(
+                      Icons.check,
+                      size: 12,
+                      color: Colors.white,
+                    ),
+                    label: const Text(
+                      'Add Product',
+                      style: TextStyle(fontSize: 12, color: Colors.white),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF24A2D3),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
                   ),
-                ),
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    // Submit logic here
-                  }
-                },
-                child: const Text(
-                  "Add Product",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
+                ],
               ),
-            ),
-            const SizedBox(height: 30),
-          ],
-        ),
-      ),
-    );
-  }
+              const SizedBox(height: 24),
 
-  Widget _buildTextField(String label) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: TextFormField(
-        decoration: InputDecoration(
-          labelText: label,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 14,
-          ),
-        ),
-        validator: (value) =>
-            value == null || value.isEmpty ? 'Required' : null,
-      ),
-    );
-  }
-
-  Widget _buildMultilineField(String label) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: TextFormField(
-        maxLines: 3,
-        decoration: InputDecoration(
-          labelText: label,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 14,
-          ),
-        ),
-        validator: (value) =>
-            value == null || value.isEmpty ? 'Required' : null,
-      ),
-    );
-  }
-
-  Widget _buildDropdown(String label, List<String> items) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: DropdownButtonFormField<String>(
-        decoration: InputDecoration(
-          labelText: label,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 14,
-          ),
-        ),
-        items: items.map((String value) {
-          return DropdownMenuItem<String>(value: value, child: Text(value));
-        }).toList(),
-        onChanged: (newValue) {
-          setState(() {});
-        },
-        validator: (value) => value == null ? 'Please select' : null,
-      ),
-    );
-  }
-
-  Widget _buildSectionCard({
-    required IconData icon,
-    required String title,
-    required List<Widget> children,
-  }) {
-    return Card(
-      elevation: 3,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: Colors.deepPurple),
-                const SizedBox(width: 8),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+              // 🔻 CARDS ROW
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 🟩 PRODUCT INFO CARD
+                  Expanded(
+                    flex: 2,
+                    child: SizedBox(
+                      height: 420,
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 2,
+                        margin: const EdgeInsets.only(right: 10),
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Row(
+                                children: [
+                                  Icon(
+                                    Icons.info_outline,
+                                    size: 16,
+                                    color: Colors.black,
+                                  ),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    'Product Info',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              Expanded(
+                                child: Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[100],
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: const EdgeInsets.all(20),
+                                  child: const Center(
+                                    child: Text(
+                                      "Product Info Form Here",
+                                      style: TextStyle(color: Colors.black54),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            ...children,
-          ],
+
+                  // 🟦 UPLOAD IMAGE CARD
+                  Expanded(
+                    flex: 1,
+                    child: SizedBox(
+                      height: 420,
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 2,
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Row(
+                                children: [
+                                  Icon(
+                                    Icons.image_outlined,
+                                    size: 16,
+                                    color: Colors.black,
+                                  ),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    'Upload Images',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+
+                              // 📷 Main Image View
+                              Container(
+                                height: 260,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[100],
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: selectedImageIndex == -1
+                                    ? const Center(
+                                        child: Text(
+                                          "No Image View",
+                                          style: TextStyle(
+                                            color: Colors.black45,
+                                          ),
+                                        ),
+                                      )
+                                    : ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                        child: Image(
+                                          image:
+                                              uploadedImages[selectedImageIndex]!,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                              ),
+                              const SizedBox(height: 10),
+
+                              // 📦 4 Upload Slots - reduced spacing
+                              Expanded(
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: List.generate(4, (index) {
+                                    final isSelected =
+                                        index == selectedImageIndex;
+
+                                    return GestureDetector(
+                                      onTap: () {
+                                        if (uploadedImages[index] != null) {
+                                          setState(() {
+                                            selectedImageIndex = index;
+                                          });
+                                        }
+                                      },
+                                      child: Container(
+                                        height: double.infinity,
+                                        width: 60,
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[100],
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          border: Border.all(
+                                            color: isSelected
+                                                ? Colors.blue
+                                                : Colors.grey.shade400,
+                                            width: isSelected ? 2 : 1,
+                                          ),
+                                        ),
+                                        child: uploadedImages[index] == null
+                                            ? Center(
+                                                child: IconButton(
+                                                  icon: const Icon(
+                                                    Icons.add,
+                                                    color: Color.fromARGB(
+                                                      255,
+                                                      136,
+                                                      94,
+                                                      199,
+                                                    ),
+                                                  ),
+                                                  onPressed: () async {
+                                                    final image =
+                                                        await _pickImage();
+                                                    if (image != null) {
+                                                      setState(() {
+                                                        uploadedImages[index] =
+                                                            image;
+                                                        selectedImageIndex =
+                                                            index;
+                                                      });
+                                                    }
+                                                  },
+                                                ),
+                                              )
+                                            : Stack(
+                                                children: [
+                                                  Positioned.fill(
+                                                    child: ClipRRect(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            10,
+                                                          ),
+                                                      child: Image(
+                                                        image:
+                                                            uploadedImages[index]!,
+                                                        fit: BoxFit.cover,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Positioned(
+                                                    top: 4,
+                                                    right: 4,
+                                                    child: GestureDetector(
+                                                      onTap: () {
+                                                        setState(() {
+                                                          uploadedImages[index] =
+                                                              null;
+                                                          if (selectedImageIndex ==
+                                                              index) {
+                                                            int fallback =
+                                                                uploadedImages
+                                                                    .indexWhere(
+                                                                      (img) =>
+                                                                          img !=
+                                                                          null,
+                                                                    );
+                                                            selectedImageIndex =
+                                                                fallback >= 0
+                                                                ? fallback
+                                                                : -1;
+                                                          }
+                                                        });
+                                                      },
+                                                      child: Container(
+                                                        decoration:
+                                                            const BoxDecoration(
+                                                              color: Colors
+                                                                  .black54,
+                                                              shape: BoxShape
+                                                                  .circle,
+                                                            ),
+                                                        padding:
+                                                            const EdgeInsets.all(
+                                                              2,
+                                                            ),
+                                                        child: const Icon(
+                                                          Icons.close,
+                                                          size: 14,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                      ),
+                                    );
+                                  }),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  Future<ImageProvider?> _pickImage() async {
+    // 📌 Placeholder image loader — Replace with actual picker later
+    return const AssetImage("assets/images/sample.jpeg");
   }
 }
