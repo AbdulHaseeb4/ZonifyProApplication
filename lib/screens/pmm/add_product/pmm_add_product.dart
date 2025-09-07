@@ -210,14 +210,18 @@ class _PMMAddProductFormState extends State<PMMAddProductForm> {
                                         ),
                                 ),
                                 const SizedBox(height: 10),
-                                Wrap(
-                                  alignment: WrapAlignment.center,
-                                  spacing: 12,
-                                  runSpacing: 12,
-                                  children: List.generate(
-                                    4,
-                                    (index) => imageUploadTile(index),
-                                  ),
+                                // ✅ Mobile: Row with Expanded
+                                Row(
+                                  children: List.generate(4, (index) {
+                                    return Expanded(
+                                      child: Padding(
+                                        padding: EdgeInsets.only(
+                                          right: index < 3 ? 12 : 0,
+                                        ),
+                                        child: imageUploadTile(index),
+                                      ),
+                                    );
+                                  }),
                                 ),
                               ],
                             ),
@@ -307,14 +311,17 @@ class _PMMAddProductFormState extends State<PMMAddProductForm> {
                                           ),
                                   ),
                                   const SizedBox(height: 10),
-                                  Wrap(
-                                    alignment: WrapAlignment.center,
-                                    spacing: 12,
-                                    runSpacing: 12,
-                                    children: List.generate(
-                                      4,
-                                      (index) => imageUploadTile(index),
-                                    ),
+                                  // ✅ Web: Row with evenly spaced fixed-size boxes
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: List.generate(4, (index) {
+                                      return SizedBox(
+                                        width: 70,
+                                        height: 70,
+                                        child: imageUploadTile(index),
+                                      );
+                                    }),
                                   ),
                                 ],
                               ),
