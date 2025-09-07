@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../core/dashboard_wrapper.dart';
 import '../../../layout/base_layout.dart';
 
@@ -9,9 +10,14 @@ class PMMAddProductPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const DashboardWrapper(
-      defaultRole: "pmm",
-      child: BaseLayout(title: "Add Product", child: PMMAddProductForm()),
+    return ScreenUtilInit(
+      designSize: const Size(1440, 1024),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) => const DashboardWrapper(
+        defaultRole: "pmm",
+        child: BaseLayout(title: "Add Product", child: PMMAddProductForm()),
+      ),
     );
   }
 }
@@ -28,7 +34,6 @@ class _PMMAddProductFormState extends State<PMMAddProductForm> {
   List<ImageProvider?> uploadedImages = [null, null, null, null];
   int selectedImageIndex = -1;
 
-  // Controllers for Product Conditions fields
   final instructionsController = TextEditingController();
   final refundController = TextEditingController();
   final commissionController = TextEditingController();
@@ -48,6 +53,12 @@ class _PMMAddProductFormState extends State<PMMAddProductForm> {
     'select category': Icons.category,
   };
 
+  final Map<String, IconData> paragraphFieldIcons = {
+    'Instructions': Icons.edit_note,
+    'Refund Conditions': Icons.attach_money,
+    'Commission Conditions': Icons.pie_chart,
+  };
+
   final Map<String, List<String>> dropdownOptions = {
     'select market': ['Amazon', 'Daraz', 'eBay', 'Walmart'],
     'seller type': ['Individual', 'Company', 'Reseller'],
@@ -57,423 +68,318 @@ class _PMMAddProductFormState extends State<PMMAddProductForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: const Color(0xFFF4F5F7),
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isMobile = constraints.maxWidth < 700;
+        return Container(
+          color: const Color(0xFFF4F5F7),
+          padding: const EdgeInsets.all(16),
+          child: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Row(
-                    children: const [
-                      Icon(
-                        Icons.shopping_bag_outlined,
-                        size: 16,
-                        color: Colors.black,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: const [
+                          Icon(
+                            Icons.shopping_bag_outlined,
+                            size: 18,
+                            color: Colors.black,
+                          ),
+                          SizedBox(width: 6),
+                          Text(
+                            'Add New Product',
+                            style: TextStyle(fontSize: 15, color: Colors.black),
+                          ),
+                        ],
                       ),
-                      SizedBox(width: 6),
-                      Text(
-                        'Add New Product',
-                        style: TextStyle(fontSize: 13, color: Colors.black),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          if (uploadedImages.every((img) => img == null)) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  "Please upload at least one product image",
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+                        },
+                        icon: const Icon(
+                          Icons.check,
+                          size: 14,
+                          color: Colors.white,
+                        ),
+                        label: const Text(
+                          'Add Product',
+                          style: TextStyle(fontSize: 13, color: Colors.white),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF24A2D3),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 10,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      if (uploadedImages.every((img) => img == null)) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              "Please upload at least one product image",
+                  const SizedBox(height: 24),
+
+                  // Responsive Layout
+                  isMobile
+                      ? Column(
+                          children: [
+                            buildCard(
+                              title: "Product Info",
+                              icon: Icons.info_outline,
+                              children: buildResponsiveFields([
+                                "Keywords",
+                                "Brand Name",
+                                "Sold By",
+                                "Product Link",
+                                "Product Price",
+                                "Sale Limit/Day",
+                                "Overall Sale Limit",
+                                "Product Commission",
+                                "Seller Type",
+                                "Review Type",
+                                "Select Market",
+                                "Select Category",
+                              ], true),
                             ),
-                          ),
-                        );
-                        return;
-                      }
-                    },
-                    icon: const Icon(
-                      Icons.check,
-                      size: 12,
-                      color: Colors.white,
-                    ),
-                    label: const Text(
-                      'Add Product',
-                      style: TextStyle(fontSize: 12, color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF24A2D3),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    flex: 2,
-                    child: Column(
-                      children: [
-                        // Product Info Card
-                        Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 2,
-                          margin: const EdgeInsets.only(right: 10),
-                          child: Padding(
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            const SizedBox(height: 20),
+                            buildCard(
+                              title: "Product Conditions",
+                              icon: Icons.rule,
                               children: [
-                                const Row(
-                                  children: [
-                                    Icon(
-                                      Icons.info_outline,
-                                      size: 16,
-                                      color: Colors.black,
-                                    ),
-                                    SizedBox(width: 6),
-                                    Text(
-                                      'Product Info',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ],
+                                _buildSingleRowField(
+                                  instructionsController,
+                                  'Instructions',
                                 ),
-                                const SizedBox(height: 12),
+                                const SizedBox(height: 10),
+                                _buildSingleRowField(
+                                  refundController,
+                                  'Refund Conditions',
+                                ),
+                                const SizedBox(height: 10),
+                                _buildSingleRowField(
+                                  commissionController,
+                                  'Commission Conditions',
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 20),
+                            buildCard(
+                              title: "Upload Images",
+                              icon: Icons.image_outlined,
+                              children: [
                                 Container(
+                                  height: 200,
                                   width: double.infinity,
                                   decoration: BoxDecoration(
                                     color: Colors.grey[100],
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
-                                  padding: const EdgeInsets.all(12),
-                                  child: Column(
-                                    children: [
-                                      build3FieldRow(
-                                        "Keywords",
-                                        "Brand Name",
-                                        "Sold By",
-                                      ),
-                                      const SizedBox(height: 10),
-                                      build3FieldRow(
-                                        "Product Link",
-                                        "Product Price",
-                                        "Sale Limit/Day",
-                                      ),
-                                      const SizedBox(height: 10),
-                                      build3FieldRow(
-                                        "Overall Sale Limit",
-                                        "Product Commission",
-                                        "Seller Type",
-                                      ),
-                                      const SizedBox(height: 10),
-                                      build3FieldRow(
-                                        "Review Type",
-                                        "Select Market",
-                                        "Select Category",
-                                      ),
-                                    ],
+                                  child: selectedImageIndex == -1
+                                      ? const Center(
+                                          child: Text(
+                                            "No Image View",
+                                            style: TextStyle(
+                                              color: Colors.black45,
+                                            ),
+                                          ),
+                                        )
+                                      : ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          child: Image(
+                                            image:
+                                                uploadedImages[selectedImageIndex]!,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                ),
+                                const SizedBox(height: 10),
+                                Wrap(
+                                  alignment: WrapAlignment.center,
+                                  spacing: 12,
+                                  runSpacing: 12,
+                                  children: List.generate(
+                                    4,
+                                    (index) => imageUploadTile(index),
                                   ),
                                 ),
                               ],
                             ),
-                          ),
-                        ),
-
-                        // ✅ Product Conditions Card (Grey box + White fields)
-                        const SizedBox(height: 16),
-                        Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 2,
-                          margin: const EdgeInsets.only(right: 10),
-                          child: Padding(
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Row(
-                                  children: [
-                                    Icon(
-                                      Icons.rule,
-                                      size: 16,
-                                      color: Colors.black,
-                                    ),
-                                    SizedBox(width: 6),
-                                    Text(
-                                      'Product Conditions',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                Container(
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[100],
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  padding: const EdgeInsets.all(12),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: _buildExpandingField(
-                                          instructionsController,
-                                          'Instructions',
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Expanded(
-                                        child: _buildExpandingField(
-                                          refundController,
-                                          'Refund Conditions',
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Expanded(
-                                        child: _buildExpandingField(
-                                          commissionController,
-                                          'Commission Conditions',
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Upload Images Card
-                  Expanded(
-                    flex: 1,
-                    child: SizedBox(
-                      height: 420,
-                      child: Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        elevation: 2,
-                        child: Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Row(
+                          ],
+                        )
+                      : Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              flex: 2,
+                              child: Column(
                                 children: [
-                                  Icon(
-                                    Icons.image_outlined,
-                                    size: 16,
-                                    color: Colors.black,
+                                  buildCard(
+                                    title: "Product Info",
+                                    icon: Icons.info_outline,
+                                    children: buildResponsiveFields([
+                                      "Keywords",
+                                      "Brand Name",
+                                      "Sold By",
+                                      "Product Link",
+                                      "Product Price",
+                                      "Sale Limit/Day",
+                                      "Overall Sale Limit",
+                                      "Product Commission",
+                                      "Seller Type",
+                                      "Review Type",
+                                      "Select Market",
+                                      "Select Category",
+                                    ], false),
                                   ),
-                                  SizedBox(width: 6),
-                                  Text(
-                                    'Upload Images',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.black,
+                                  const SizedBox(height: 20),
+                                  buildCard(
+                                    title: "Product Conditions",
+                                    icon: Icons.rule,
+                                    children: [
+                                      _buildSingleRowField(
+                                        instructionsController,
+                                        'Instructions',
+                                      ),
+                                      const SizedBox(height: 10),
+                                      _buildSingleRowField(
+                                        refundController,
+                                        'Refund Conditions',
+                                      ),
+                                      const SizedBox(height: 10),
+                                      _buildSingleRowField(
+                                        commissionController,
+                                        'Commission Conditions',
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 20),
+                            Expanded(
+                              flex: 1,
+                              child: buildCard(
+                                title: "Upload Images",
+                                icon: Icons.image_outlined,
+                                children: [
+                                  Container(
+                                    height: 260,
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey[100],
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: selectedImageIndex == -1
+                                        ? const Center(
+                                            child: Text(
+                                              "No Image View",
+                                              style: TextStyle(
+                                                color: Colors.black45,
+                                              ),
+                                            ),
+                                          )
+                                        : ClipRRect(
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                            child: Image(
+                                              image:
+                                                  uploadedImages[selectedImageIndex]!,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Wrap(
+                                    alignment: WrapAlignment.center,
+                                    spacing: 12,
+                                    runSpacing: 12,
+                                    children: List.generate(
+                                      4,
+                                      (index) => imageUploadTile(index),
                                     ),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 16),
-                              Container(
-                                height: 260,
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[100],
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: selectedImageIndex == -1
-                                    ? const Center(
-                                        child: Text(
-                                          "No Image View",
-                                          style: TextStyle(
-                                            color: Colors.black45,
-                                          ),
-                                        ),
-                                      )
-                                    : ClipRRect(
-                                        borderRadius: BorderRadius.circular(10),
-                                        child: Image(
-                                          image:
-                                              uploadedImages[selectedImageIndex]!,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                              ),
-                              const SizedBox(height: 10),
-                              Expanded(
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: List.generate(4, (index) {
-                                    final isSelected =
-                                        index == selectedImageIndex;
-                                    return GestureDetector(
-                                      onTap: () {
-                                        if (uploadedImages[index] != null) {
-                                          setState(
-                                            () => selectedImageIndex = index,
-                                          );
-                                        }
-                                      },
-                                      child: DottedBorder(
-                                        color: isSelected
-                                            ? Colors.blue
-                                            : Colors.grey.shade400,
-                                        strokeWidth: isSelected ? 2 : 1,
-                                        borderType: BorderType.RRect,
-                                        radius: const Radius.circular(10),
-                                        dashPattern: [6, 3],
-                                        child: Container(
-                                          height: double.infinity,
-                                          width: 60,
-                                          decoration: BoxDecoration(
-                                            color: Colors.grey[100],
-                                            borderRadius: BorderRadius.circular(
-                                              10,
-                                            ),
-                                          ),
-                                          child: uploadedImages[index] == null
-                                              ? Center(
-                                                  child: IconButton(
-                                                    icon: const Icon(
-                                                      Icons.add,
-                                                      color: Color(0xFF885EC7),
-                                                    ),
-                                                    onPressed: () async {
-                                                      final image =
-                                                          await _pickImage();
-                                                      if (image != null) {
-                                                        setState(() {
-                                                          uploadedImages[index] =
-                                                              image;
-                                                          selectedImageIndex =
-                                                              index;
-                                                        });
-                                                      }
-                                                    },
-                                                  ),
-                                                )
-                                              : Stack(
-                                                  children: [
-                                                    Positioned.fill(
-                                                      child: ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              10,
-                                                            ),
-                                                        child: Image(
-                                                          image:
-                                                              uploadedImages[index]!,
-                                                          fit: BoxFit.cover,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    Positioned(
-                                                      top: 4,
-                                                      right: 4,
-                                                      child: GestureDetector(
-                                                        onTap: () {
-                                                          setState(() {
-                                                            uploadedImages[index] =
-                                                                null;
-                                                            if (selectedImageIndex ==
-                                                                index) {
-                                                              int fallback =
-                                                                  uploadedImages
-                                                                      .indexWhere(
-                                                                        (img) =>
-                                                                            img !=
-                                                                            null,
-                                                                      );
-                                                              selectedImageIndex =
-                                                                  fallback >= 0
-                                                                  ? fallback
-                                                                  : -1;
-                                                            }
-                                                          });
-                                                        },
-                                                        child: Container(
-                                                          decoration:
-                                                              const BoxDecoration(
-                                                                color: Colors
-                                                                    .black54,
-                                                                shape: BoxShape
-                                                                    .circle,
-                                                              ),
-                                                          padding:
-                                                              const EdgeInsets.all(
-                                                                2,
-                                                              ),
-                                                          child: const Icon(
-                                                            Icons.close,
-                                                            size: 14,
-                                                            color: Colors.white,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                        ),
-                                      ),
-                                    );
-                                  }),
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ),
-                  ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  Widget build3FieldRow(String label1, String label2, String? label3) {
-    return Row(
-      children: [
-        Expanded(child: buildSmartField(label1)),
-        const SizedBox(width: 10),
-        Expanded(child: buildSmartField(label2)),
-        if (label3 != null) ...[
-          const SizedBox(width: 10),
-          Expanded(child: buildSmartField(label3)),
-        ],
-      ],
+  List<Widget> buildResponsiveFields(List<String> labels, bool isMobile) {
+    List<Widget> rows = [];
+    for (int i = 0; i < labels.length; i += isMobile ? 1 : 3) {
+      rows.add(
+        Row(
+          children: List.generate(isMobile ? 1 : 3, (j) {
+            final idx = i + j;
+            if (idx >= labels.length) return const SizedBox();
+            return Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(right: j < 2 ? 10 : 0),
+                child: buildSmartField(labels[idx]),
+              ),
+            );
+          }),
+        ),
+      );
+      rows.add(const SizedBox(height: 10));
+    }
+    return rows;
+  }
+
+  Widget buildCard({
+    required String title,
+    required IconData icon,
+    required List<Widget> children,
+  }) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, size: 18, color: Colors.black),
+                const SizedBox(width: 6),
+                Text(
+                  title,
+                  style: const TextStyle(fontSize: 15, color: Colors.black),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            ...children,
+          ],
+        ),
+      ),
     );
   }
 
@@ -502,31 +408,6 @@ class _PMMAddProductFormState extends State<PMMAddProductForm> {
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
           isDense: true,
         ),
-        dropdownStyleData: DropdownStyleData(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          scrollbarTheme: ScrollbarThemeData(
-            thumbColor: MaterialStateProperty.all(Colors.grey.shade400),
-            radius: const Radius.circular(8),
-            thickness: MaterialStateProperty.all(4),
-          ),
-        ),
-        menuItemStyleData: MenuItemStyleData(
-          overlayColor: const MaterialStatePropertyAll(Color(0xFFEAF6FF)),
-          selectedMenuItemBuilder: (context, child) => Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFFD6ECFF),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: child,
-          ),
-        ),
-        iconStyleData: const IconStyleData(
-          icon: Icon(Icons.keyboard_arrow_down_rounded, size: 18),
-        ),
         items: (dropdownOptions[lower] ?? []).map((item) {
           return DropdownMenuItem<String>(
             value: item,
@@ -554,7 +435,8 @@ class _PMMAddProductFormState extends State<PMMAddProductForm> {
     );
   }
 
-  Widget _buildExpandingField(TextEditingController controller, String label) {
+  Widget _buildSingleRowField(TextEditingController controller, String label) {
+    final icon = paragraphFieldIcons[label] ?? Icons.text_fields;
     return TextField(
       controller: controller,
       minLines: 1,
@@ -562,6 +444,7 @@ class _PMMAddProductFormState extends State<PMMAddProductForm> {
       keyboardType: TextInputType.multiline,
       decoration: InputDecoration(
         labelText: label,
+        prefixIcon: Icon(icon, size: 18, color: Colors.blue),
         alignLabelWithHint: true,
         filled: true,
         fillColor: Colors.white,
@@ -569,6 +452,91 @@ class _PMMAddProductFormState extends State<PMMAddProductForm> {
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
       style: const TextStyle(fontSize: 12),
+    );
+  }
+
+  Widget imageUploadTile(int index) {
+    final isSelected = index == selectedImageIndex;
+    return GestureDetector(
+      onTap: () {
+        if (uploadedImages[index] != null) {
+          setState(() => selectedImageIndex = index);
+        }
+      },
+      child: DottedBorder(
+        color: isSelected ? Colors.blue : Colors.grey.shade400,
+        strokeWidth: isSelected ? 2 : 1,
+        borderType: BorderType.RRect,
+        radius: const Radius.circular(10),
+        dashPattern: const [6, 3],
+        child: Container(
+          height: 70,
+          width: 70,
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: uploadedImages[index] == null
+              ? Center(
+                  child: IconButton(
+                    icon: const Icon(Icons.add, color: Color(0xFF885EC7)),
+                    onPressed: () async {
+                      final image = await _pickImage();
+                      if (image != null) {
+                        setState(() {
+                          uploadedImages[index] = image;
+                          selectedImageIndex = index;
+                        });
+                      }
+                    },
+                  ),
+                )
+              : Stack(
+                  children: [
+                    Positioned.fill(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Image(
+                          image: uploadedImages[index]!,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 4,
+                      right: 4,
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            uploadedImages[index] = null;
+                            if (selectedImageIndex == index) {
+                              int fallback = uploadedImages.indexWhere(
+                                (img) => img != null,
+                              );
+                              selectedImageIndex = fallback >= 0
+                                  ? fallback
+                                  : -1;
+                            }
+                          });
+                        },
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            color: Colors.black54,
+                            shape: BoxShape.circle,
+                          ),
+                          padding: const EdgeInsets.all(2),
+                          child: const Icon(
+                            Icons.close,
+                            size: 14,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+        ),
+      ),
     );
   }
 
