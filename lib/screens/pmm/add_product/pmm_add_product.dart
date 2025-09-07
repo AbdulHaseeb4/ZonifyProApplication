@@ -93,7 +93,11 @@ class _PMMAddProductFormState extends State<PMMAddProductForm> {
                           SizedBox(width: 6),
                           Text(
                             'Add New Product',
-                            style: TextStyle(fontSize: 15, color: Colors.black),
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
                         ],
                       ),
@@ -117,7 +121,12 @@ class _PMMAddProductFormState extends State<PMMAddProductForm> {
                         ),
                         label: const Text(
                           'Add Product',
-                          style: TextStyle(fontSize: 13, color: Colors.white),
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w400,
+                            letterSpacing: 0.2,
+                          ),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF24A2D3),
