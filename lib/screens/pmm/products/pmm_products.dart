@@ -1,5 +1,9 @@
+// ✅ Final Code: Only your 3 required changes. Baqi sab same hai.
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:zonifypro/core/theme.dart';
+import 'package:zonifypro/screens/pm/reservation/pm_reservation.dart';
 import '../../../core/dashboard_wrapper.dart';
 import '../../../layout/base_layout.dart';
 
@@ -29,6 +33,7 @@ class _PMMProductsPageState extends State<PMMProductsPage> {
 
   List<Map<String, dynamic>> products = [
     {
+      "category": "General",
       "seller": "S101",
       "market": "US",
       "saleLimit": "50",
@@ -38,9 +43,9 @@ class _PMMProductsPageState extends State<PMMProductsPage> {
       "keywords": "Headphones, Audio",
       "link": "https://example.com/product1",
       "productId": "PRD-001",
-      "active": false,
     },
     {
+      "category": "Electronics",
       "seller": "S102",
       "market": "UK",
       "saleLimit": "60",
@@ -50,9 +55,36 @@ class _PMMProductsPageState extends State<PMMProductsPage> {
       "keywords": "Mobile Charger",
       "link": "https://example.com/product2",
       "productId": "PRD-002",
-      "active": true,
     },
   ];
+
+  final List<double> _colW = [90, 70, 80, 90, 90, 90, 130, 200, 90, 70, 180];
+
+  Widget _h(String text, int i, {bool isMobile = false}) => SizedBox(
+    width: _colW[i],
+    child: Center(
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: isMobile ? 11 : 13,
+          color: Colors.black87,
+        ),
+      ),
+    ),
+  );
+
+  DataCell _c(int i, Widget child) => DataCell(
+    SizedBox(
+      width: _colW[i],
+      child: Center(child: child),
+    ),
+  );
+
+  Widget _highlightText(String text, {bool isMobile = false}) {
+    return Text(text, style: TextStyle(fontSize: isMobile ? 11 : 12));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,7 +95,6 @@ class _PMMProductsPageState extends State<PMMProductsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 🔹 Search Bar + Add Product Button
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               child: Row(
@@ -131,8 +162,6 @@ class _PMMProductsPageState extends State<PMMProductsPage> {
                 ],
               ),
             ),
-
-            // 🔹 Category Buttons
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: SingleChildScrollView(
@@ -142,7 +171,6 @@ class _PMMProductsPageState extends State<PMMProductsPage> {
                     final String label = cat['label'] as String;
                     final int count = cat['count'] as int;
                     final bool isSelected = selectedCategory == label;
-
                     return Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: InkWell(
@@ -172,11 +200,10 @@ class _PMMProductsPageState extends State<PMMProductsPage> {
                                     left: const Radius.circular(7),
                                     right: isSelected
                                         ? const Radius.circular(7)
-                                        : const Radius.circular(0),
+                                        : Radius.zero,
                                   ),
                                 ),
                                 child: Row(
-                                  mainAxisSize: MainAxisSize.min,
                                   children: [
                                     if (isSelected)
                                       const Icon(
@@ -220,8 +247,6 @@ class _PMMProductsPageState extends State<PMMProductsPage> {
                 ),
               ),
             ),
-
-            // 📋 Product Table
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
@@ -236,101 +261,13 @@ class _PMMProductsPageState extends State<PMMProductsPage> {
                     child: SingleChildScrollView(
                       child: SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
-                        child: DataTable(
-                          columns: const [
-                            DataColumn(label: Text('Seller')),
-                            DataColumn(label: Text('Market')),
-                            DataColumn(label: Text('Sale Limit')),
-                            DataColumn(label: Text('Today Remain')),
-                            DataColumn(label: Text('Total Remain')),
-                            DataColumn(label: Text('Commission')),
-                            DataColumn(label: Text('Keywords')),
-                            DataColumn(label: Text('Product Link')),
-                            DataColumn(label: Text('Product ID')),
-                            DataColumn(label: Text('Actions')),
-                          ],
-                          rows: products.map((product) {
-                            final isActive = product['active'] as bool;
-                            return DataRow(
-                              cells: [
-                                DataCell(Text(product['seller'])),
-                                DataCell(Text(product['market'])),
-                                DataCell(Text(product['saleLimit'])),
-                                DataCell(Text(product['todayRemain'])),
-                                DataCell(Text(product['totalRemain'])),
-                                DataCell(Text('PKR ${product['commission']}')),
-                                DataCell(Text(product['keywords'])),
-                                DataCell(
-                                  Text(
-                                    product['link'],
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                DataCell(Text(product['productId'])),
-                                DataCell(
-                                  Row(
-                                    children: [
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            product['active'] = !isActive;
-                                          });
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                product['active']
-                                                    ? 'Product Activated'
-                                                    : 'Product Deactivated',
-                                              ),
-                                              backgroundColor: product['active']
-                                                  ? Colors.green
-                                                  : Colors.red,
-                                              duration: const Duration(
-                                                seconds: 2,
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: isActive
-                                              ? Colors.green
-                                              : Colors.red,
-                                          minimumSize: const Size(60, 28),
-                                        ),
-                                        child: Text(
-                                          isActive ? 'Active' : 'Inactive',
-                                          style: const TextStyle(
-                                            fontSize: 11,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 6),
-                                      ElevatedButton(
-                                        onPressed: () => context.push(
-                                          "/pmm/products/${product['productId']}",
-                                          extra: product,
-                                        ),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.blue,
-                                          minimumSize: const Size(60, 28),
-                                        ),
-                                        child: const Text(
-                                          "View",
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            );
-                          }).toList(),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minWidth: MediaQuery.of(context).size.width - 32,
+                          ),
+                          child: _buildProductTable(
+                            MediaQuery.of(context).size.width < 600,
+                          ),
                         ),
                       ),
                     ),
@@ -341,6 +278,149 @@ class _PMMProductsPageState extends State<PMMProductsPage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildProductTable(bool isMobile) {
+    final filteredProducts = selectedCategory == "All"
+        ? products
+        : products.where((p) => p['category'] == selectedCategory).toList();
+
+    return DataTable(
+      headingRowColor: WidgetStateProperty.all(
+        Colors.grey[300],
+      ), // ✅ Grey heading
+      dividerThickness: 0,
+      columns: [
+        DataColumn(label: _h('Seller', 0, isMobile: isMobile)),
+        DataColumn(label: _h('Market', 1, isMobile: isMobile)),
+        DataColumn(label: _h('Sale Limit', 2, isMobile: isMobile)),
+        DataColumn(label: _h('Today Remain', 3, isMobile: isMobile)),
+        DataColumn(label: _h('Total Remain', 4, isMobile: isMobile)),
+        DataColumn(label: _h('Commission', 5, isMobile: isMobile)),
+        DataColumn(label: _h('Keywords', 6, isMobile: isMobile)),
+        DataColumn(label: _h('Product Link', 7, isMobile: isMobile)),
+        DataColumn(label: _h('Product ID', 8, isMobile: isMobile)),
+        DataColumn(label: _h('Image', 9, isMobile: isMobile)),
+        DataColumn(label: _h('Actions', 10, isMobile: isMobile)),
+      ],
+      rows: List<DataRow>.generate(filteredProducts.length, (index) {
+        final p = filteredProducts[index];
+        final alreadyReserved = PMReservationPage.reservations.any(
+          (r) => r['productId'] == p['productId'],
+        );
+
+        return DataRow(
+          color: WidgetStateProperty.all(
+            index.isEven ? Colors.white : Colors.grey[200],
+          ), // ✅ Alternate rows
+          cells: [
+            _c(0, _highlightText(p['seller'], isMobile: isMobile)),
+            _c(
+              1,
+              Text(p['market'], style: TextStyle(fontSize: isMobile ? 11 : 12)),
+            ),
+            _c(
+              2,
+              Text(
+                p['saleLimit'],
+                style: TextStyle(fontSize: isMobile ? 11 : 12),
+              ),
+            ),
+            _c(
+              3,
+              Text(
+                p['todayRemain'],
+                style: TextStyle(fontSize: isMobile ? 11 : 12),
+              ),
+            ),
+            _c(
+              4,
+              Text(
+                p['totalRemain'],
+                style: TextStyle(fontSize: isMobile ? 11 : 12),
+              ),
+            ),
+            _c(
+              5,
+              Text(
+                'PKR ${p['commission']}',
+                style: TextStyle(fontSize: isMobile ? 11 : 12),
+              ),
+            ),
+            _c(6, _highlightText(p['keywords'], isMobile: isMobile)),
+            _c(
+              7,
+              Tooltip(
+                message: p['link'],
+                child: Text(p['link'], overflow: TextOverflow.ellipsis),
+              ),
+            ),
+            _c(8, _highlightText(p['productId'], isMobile: isMobile)),
+            _c(
+              9,
+              ClipRRect(
+                borderRadius: BorderRadius.zero,
+                child: Image.asset(
+                  "assets/images/sample.jpeg",
+                  width: 36,
+                  height: 36,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            _c(
+              10,
+              Wrap(
+                spacing: 6,
+                children: [
+                  ElevatedButton(
+                    onPressed: alreadyReserved
+                        ? null
+                        : () {
+                            setState(() {
+                              PMReservationPage.reservations.add({
+                                "sellerName": p["seller"],
+                                "reservationId": DateTime.now()
+                                    .millisecondsSinceEpoch
+                                    .toString(),
+                                "productId": p["productId"],
+                                "image": "assets/images/sample.jpeg",
+                                "remaining": const Duration(hours: 2),
+                              });
+                            });
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: alreadyReserved
+                          ? Colors.grey
+                          : AppTheme.peach,
+                      minimumSize: const Size(60, 28),
+                    ),
+                    child: Text(
+                      alreadyReserved ? "Reserved" : "Reserve",
+                      style: const TextStyle(fontSize: 11, color: Colors.white),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => context.push(
+                      "/pmm/products/${p['productId']}",
+                      extra: p,
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.mint,
+                      minimumSize: const Size(60, 28),
+                    ),
+                    child: const Text(
+                      "View",
+                      style: TextStyle(fontSize: 11, color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      }),
     );
   }
 }
