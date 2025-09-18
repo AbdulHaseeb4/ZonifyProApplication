@@ -17,8 +17,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  bool _isHovered = false;
-  bool _isPressed = false;
   bool _isLoading = false;
 
   Future<void> _login() async {
@@ -44,7 +42,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           backgroundColor: Colors.green,
         ),
       );
-      // ⬆️ redirect role ke hisaab se router_provider handle karega
+      // Redirect automatically handled by routerProvider
     } catch (e) {
       rootScaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(
@@ -76,12 +74,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               border: Border.all(color: const Color(0xFFE5E6EF), width: 1),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
+                  color: Colors.black.withOpacity(0.06),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.02),
+                  color: Colors.black.withOpacity(0.02),
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
@@ -166,49 +164,32 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 SizedBox(height: isMobile ? 24 : 28),
 
                 // 🚀 Login Button
-                MouseRegion(
-                  onEnter: (_) => setState(() => _isHovered = true),
-                  onExit: (_) {
-                    setState(() {
-                      _isHovered = false;
-                      _isPressed = false;
-                    });
-                  },
-                  child: GestureDetector(
-                    onTapDown: (_) => setState(() => _isPressed = true),
-                    onTapUp: (_) => setState(() => _isPressed = false),
-                    onTapCancel: () => setState(() => _isPressed = false),
-                    onTap: _login,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 180),
-                      transformAlignment: Alignment.center,
-                      transform: Matrix4.identity()
-                        ..scale(
-                          _isPressed
-                              ? 0.92
-                              : _isHovered
-                              ? 1.05
-                              : 1.0,
-                          _isPressed
-                              ? 0.92
-                              : _isHovered
-                              ? 1.05
-                              : 1.0,
-                        ),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: isMobile ? 18 : 22,
-                        vertical: isMobile ? 10 : 12,
+                GestureDetector(
+                  onTap: _login,
+                  child: Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isMobile ? 18 : 22,
+                      vertical: isMobile ? 12 : 14,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [AppTheme.lavender, AppTheme.mint],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
                       ),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [AppTheme.lavender, AppTheme.mint],
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Center(
                       child: _isLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
                           : Text(
                               "Login",
                               style: GoogleFonts.poppins(

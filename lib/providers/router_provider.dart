@@ -1,15 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:zonifypro/screens/pmm/add_product/pmm_add_product.dart';
-import 'package:zonifypro/screens/pmm/change_pass/pmm_change_password.dart';
-import 'package:zonifypro/screens/pmm/delay_refund/pmm_delay_refund.dart';
-import 'package:zonifypro/screens/pmm/excel/pmm_excel.dart';
-import 'package:zonifypro/screens/pmm/orders/pmm_orders.dart';
-import 'package:zonifypro/screens/pmm/premium_products/pmm_premium_products.dart';
-import 'package:zonifypro/screens/pmm/products/pmm_products.dart';
-import 'package:zonifypro/screens/pmm/profile/pmm_profile.dart';
-import 'package:zonifypro/screens/pmm/reservation/pmm_reservation.dart';
-import 'package:zonifypro/screens/pmm/support/pmm_support.dart';
 
 // Providers
 import '../providers/auth_provider.dart';
@@ -19,13 +9,23 @@ import '../screens/auth/login/login_screen.dart';
 
 // ADMIN
 import '../screens/admin/dashboard/admin_dashboard.dart';
-import 'package:zonifypro/screens/admin/add_user/admin_create_user.dart';
+import '../screens/admin/add_user/admin_create_user.dart';
 
 // MANAGER
 import '../screens/manager/dashboard/manager_dashboard.dart';
 
 // PMM
 import '../screens/pmm/dashboard/pmm_dashboard.dart';
+import '../screens/pmm/add_product/pmm_add_product.dart';
+import '../screens/pmm/change_pass/pmm_change_password.dart';
+import '../screens/pmm/delay_refund/pmm_delay_refund.dart';
+import '../screens/pmm/excel/pmm_excel.dart';
+import '../screens/pmm/orders/pmm_orders.dart';
+import '../screens/pmm/premium_products/pmm_premium_products.dart';
+import '../screens/pmm/products/pmm_products.dart';
+import '../screens/pmm/profile/pmm_profile.dart';
+import '../screens/pmm/reservation/pmm_reservation.dart';
+import '../screens/pmm/support/pmm_support.dart';
 
 // PM
 import '../screens/pm/dashboard/pm_dashboard.dart';
@@ -52,10 +52,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       final user = authAsync.value;
       final appUser = appUserAsync.value;
 
-      // 🕑 Wait for both auth + user role
+      // 🕑 Wait for auth + user role
       if (authAsync.isLoading || appUserAsync.isLoading) return null;
 
-      // ❌ If not logged in and trying to access dashboards → force login
+      // ❌ Not logged in but trying dashboard → force login
       if (user == null &&
           (goingTo.startsWith("/pm") ||
               goingTo.startsWith("/admin") ||
@@ -64,7 +64,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         return "/login";
       }
 
-      // ✅ If logged in & going to /login or / → send to correct dashboard
+      // ✅ Logged in & on /login or / → redirect by role
       if (user != null && (goingTo == "/login" || goingTo == "/")) {
         switch (appUser?.role) {
           case "admin":
@@ -80,7 +80,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         }
       }
 
-      return null; // ✅ allow navigation
+      return null; // allow navigation
     },
 
     routes: [
@@ -90,77 +90,62 @@ final routerProvider = Provider<GoRouter>((ref) {
       // ADMIN
       GoRoute(
         path: "/admin/dashboard",
-        builder: (context, state) => const AdminDashboardPage(),
+        builder: (c, s) => const AdminDashboardPage(),
       ),
       GoRoute(
         path: "/admin/create_user",
-        builder: (context, state) => const AdminCreateUserPage(),
+        builder: (c, s) => const AdminCreateUserPage(),
       ),
 
       // MANAGER
       GoRoute(
         path: "/manager/dashboard",
-        builder: (context, state) => const ManagerDashboardPage(),
+        builder: (c, s) => const ManagerDashboardPage(),
       ),
 
       // PMM
       GoRoute(
         path: "/pmm/dashboard",
-        builder: (context, state) => const PMMDashboardPage(),
+        builder: (c, s) => const PMMDashboardPage(),
       ),
-      GoRoute(
-        path: "/pmm/orders",
-        builder: (context, state) => const PMMOrdersPage(),
-      ),
+      GoRoute(path: "/pmm/orders", builder: (c, s) => const PMMOrdersPage()),
       GoRoute(
         path: "/pmm/products",
-        builder: (context, state) => const PMMProductsPage(),
+        builder: (c, s) => const PMMProductsPage(),
       ),
       GoRoute(
         path: "/pmm/add_product",
-        builder: (context, state) => const PMMAddProductPage(),
+        builder: (c, s) => const PMMAddProductPage(),
       ),
       GoRoute(
         path: "/pmm/premium_products",
-        builder: (context, state) => const PMMPremiumProductsPage(),
+        builder: (c, s) => const PMMPremiumProductsPage(),
       ),
       GoRoute(
         path: "/pmm/reservation",
-        builder: (context, state) => const PMMReservationPage(),
+        builder: (c, s) => const PMMReservationPage(),
       ),
       GoRoute(
         path: "/pmm/change_password",
-        builder: (context, state) => const PMMChangePasswordPage(),
+        builder: (c, s) => const PMMChangePasswordPage(),
       ),
-      GoRoute(
-        path: "/pmm/profile",
-        builder: (context, state) => const PMMProfilePage(),
-      ),
-      GoRoute(
-        path: "/pmm/excel",
-        builder: (context, state) => const PMMExcelPage(),
-      ),
-      GoRoute(
-        path: "/pmm/support",
-        builder: (context, state) => const PMMSupportPage(),
-      ),
+      GoRoute(path: "/pmm/profile", builder: (c, s) => const PMMProfilePage()),
+      GoRoute(path: "/pmm/excel", builder: (c, s) => const PMMExcelPage()),
+      GoRoute(path: "/pmm/support", builder: (c, s) => const PMMSupportPage()),
       GoRoute(
         path: "/pmm/delay_refund",
-        builder: (context, state) => const PMMDelayRefundPage(),
+        builder: (c, s) => const PMMDelayRefundPage(),
       ),
 
       // PM
       GoRoute(
         path: "/pm/dashboard",
-        builder: (context, state) => const PMDashboardPage(),
+        builder: (c, s) => const PMDashboardPage(),
       ),
-      GoRoute(
-        path: "/pm/orders",
-        builder: (context, state) => const PMOrdersPage(),
-      ),
+      GoRoute(path: "/pm/orders", builder: (c, s) => const PMOrdersPage()),
       GoRoute(
         path: "/pm/products",
-        builder: (context, state) => const PMProductsPage(category: "All"),
+        builder: (c, s) => const PMProductsPage(category: "All"),
         routes: [
           GoRoute(
             path: ":id",
@@ -174,27 +159,21 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: "/pm/reservation",
-        builder: (context, state) => const PMReservationPage(),
+        builder: (c, s) => const PMReservationPage(),
       ),
       GoRoute(
         path: "/pm/delay_refund",
-        builder: (context, state) => const PMDelayRefundPage(),
+        builder: (c, s) => const PMDelayRefundPage(),
       ),
       GoRoute(
         path: "/pm/change_password",
-        builder: (context, state) => const PMChangePasswordPage(),
+        builder: (c, s) => const PMChangePasswordPage(),
       ),
-      GoRoute(
-        path: "/pm/excel",
-        builder: (context, state) => const PMExcelPage(),
-      ),
-      GoRoute(
-        path: "/pm/support",
-        builder: (context, state) => const PMSupportPage(),
-      ),
+      GoRoute(path: "/pm/excel", builder: (c, s) => const PMExcelPage()),
+      GoRoute(path: "/pm/support", builder: (c, s) => const PMSupportPage()),
       GoRoute(
         path: "/pm/blacklist",
-        builder: (context, state) => const PMBlacklistPage(),
+        builder: (c, s) => const PMBlacklistPage(),
       ),
     ],
   );

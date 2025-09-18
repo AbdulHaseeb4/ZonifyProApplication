@@ -34,20 +34,21 @@ final authStateProvider = StreamProvider<User?>(
   (ref) => FirebaseAuth.instance.authStateChanges(),
 );
 
-/// 🔹 Firestore user data provider (fetch full user profile)
-final appUserProvider = FutureProvider<AppUser?>((ref) async {
+/// 🔹 Firestore user data provider (stream instead of future)
+final appUserProvider = StreamProvider<AppUser?>((ref) {
   final user = ref.watch(authStateProvider).value;
-  if (user == null) return null;
+  if (user == null) return const Stream.empty();
 
-  final doc = await FirebaseFirestore.instance
+  return FirebaseFirestore.instance
       .collection("users")
       .doc(user.uid)
-      .get();
-
-  if (doc.exists) {
-    return AppUser.fromMap(user.uid, doc.data()!);
-  }
-  return null;
+      .snapshots()
+      .map((doc) {
+        if (doc.exists) {
+          return AppUser.fromMap(user.uid, doc.data()!);
+        }
+        return null;
+      });
 });
 
 /// 🔹 Role shortcut provider
