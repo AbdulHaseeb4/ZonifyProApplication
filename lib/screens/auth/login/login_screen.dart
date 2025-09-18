@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
+import 'package:phosphor_flutter/phosphor_flutter.dart'; // ✅ add this
 import 'package:zonifypro/core/custom_snackbar.dart';
 import '../../../core/theme.dart';
+import '../../../main.dart'; // rootScaffoldMessengerKey
 import '../../../providers/auth_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -39,35 +40,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       final loginAction = ref.read(loginProvider);
       await loginAction(email, password);
 
-      // ✅ Success snackbar
-      CustomSnackBar.show(
-        context,
-        message: "Login Successful 🎉",
-        type: SnackBarType.success,
+      rootScaffoldMessengerKey.currentState?.showSnackBar(
+        const SnackBar(
+          content: Text("✅ Login Successful"),
+          backgroundColor: Colors.green,
+        ),
       );
-    } on Exception catch (e) {
-      String errorMessage = "Login Failed";
-
-      // 🔥 Firebase specific error handling
-      if (e.toString().contains("user-not-found")) {
-        errorMessage = "No account found for this email";
-      } else if (e.toString().contains("wrong-password")) {
-        errorMessage = "Incorrect password";
-      } else if (e.toString().contains("invalid-email")) {
-        errorMessage = "Invalid email address";
-      } else if (e.toString().contains("network-request-failed")) {
-        errorMessage = "No internet connection";
-      } else if (e.toString().contains("too-many-requests")) {
-        errorMessage = "Too many attempts. Please try again later";
-      } else {
-        errorMessage = e.toString();
-      }
-
-      // ❌ Custom error snackbar
-      CustomSnackBar.show(
-        context,
-        message: errorMessage,
-        type: SnackBarType.error,
+      // Redirect handled by routerProvider
+    } catch (e) {
+      rootScaffoldMessengerKey.currentState?.showSnackBar(
+        SnackBar(
+          content: Text("❌ Login Failed: $e"),
+          backgroundColor: AppTheme.peach,
+        ),
       );
     } finally {
       setState(() => _isLoading = false);
