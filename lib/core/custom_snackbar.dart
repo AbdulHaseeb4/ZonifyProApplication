@@ -4,6 +4,21 @@ import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 enum SnackBarType { success, error, warning, info }
 
+/// 🔹 Responsive helper with 3 breakpoints
+class Responsive {
+  static double width(BuildContext context) =>
+      MediaQuery.of(context).size.width;
+
+  static bool isMobile(BuildContext context) => width(context) < 600;
+
+  static bool isTablet(BuildContext context) {
+    final w = width(context);
+    return w >= 600 && w < 1024;
+  }
+
+  static bool isDesktop(BuildContext context) => width(context) >= 1024;
+}
+
 class CustomSnackBar {
   static void show(
     BuildContext context, {
@@ -15,74 +30,103 @@ class CustomSnackBar {
 
     switch (type) {
       case SnackBarType.success:
-        accent = const Color(0xFF4CAF50); // soft green
+        accent = const Color(0xFF4CAF50);
         icon = PhosphorIconsFill.checkCircle;
         break;
       case SnackBarType.error:
-        accent = const Color(0xFFE57373); // soft red
+        accent = const Color(0xFFE57373);
         icon = PhosphorIconsFill.xCircle;
         break;
       case SnackBarType.warning:
-        accent = const Color(0xFFFFB74D); // amber
+        accent = const Color(0xFFFFB74D);
         icon = PhosphorIconsFill.warningCircle;
         break;
       case SnackBarType.info:
-        accent = const Color(0xFF64B5F6); // light blue
+        accent = const Color(0xFF64B5F6);
         icon = PhosphorIconsFill.info;
         break;
+    }
+
+    // ✅ Responsive width
+    double snackWidth;
+    if (Responsive.isMobile(context)) {
+      snackWidth = double.infinity; // full width
+    } else if (Responsive.isTablet(context)) {
+      snackWidth = Responsive.width(context) * 0.7; // 70% of screen
+    } else {
+      snackWidth = 400; // fixed card for desktop
     }
 
     final snackBar = SnackBar(
       elevation: 0,
       behavior: SnackBarBehavior.floating,
       backgroundColor: Colors.transparent,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      duration: const Duration(seconds: 5),
-      content: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 10,
-        ), // slim
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: accent.withValues(alpha: 0.4), // ✅ new API
-            width: 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: accent.withValues(alpha: 0.15), // ✅ new API
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: accent, size: 20),
-            const SizedBox(width: 10),
-
-            // Message
-            Expanded(
-              child: Text(
-                message,
-                style: GoogleFonts.poppins(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87,
+      duration: const Duration(seconds: 6),
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      content: Center(
+        child: TweenAnimationBuilder<double>(
+          tween: Tween(begin: 1.2, end: 1.0), // zoom bounce
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.elasticOut,
+          builder: (context, scale, child) {
+            return Transform.scale(scale: scale, child: child);
+          },
+          child: Container(
+            width: snackWidth,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 8,
+            ), // ✅ thin
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: accent.withOpacity(0.4), width: 1),
+              boxShadow: [
+                BoxShadow(
+                  color: accent.withOpacity(0.2),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
                 ),
-              ),
+              ],
             ),
+            child: Row(
+              children: [
+                Icon(icon, color: accent, size: 20),
+                const SizedBox(width: 10),
 
-            // Close Button
-            GestureDetector(
-              onTap: () {
-                ScaffoldMessenger.of(context).hideCurrentSnackBar();
-              },
-              child: Icon(PhosphorIconsLight.x, size: 18, color: accent),
+                // Message
+                Expanded(
+                  child: Text(
+                    message,
+                    style: GoogleFonts.poppins(
+                      fontSize: Responsive.isMobile(context) ? 12 : 13,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+
+                // OK Button
+                TextButton(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: accent,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ), // ✅ slim button
+                    textStyle: GoogleFonts.poppins(
+                      fontSize: Responsive.isMobile(context) ? 11 : 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  child: const Text("OK"),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
