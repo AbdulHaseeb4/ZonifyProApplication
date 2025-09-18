@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:phosphor_flutter/phosphor_flutter.dart'; // ✅ add this
 import '../../../core/theme.dart';
 import '../../../main.dart'; // rootScaffoldMessengerKey
 import '../../../providers/auth_provider.dart';
@@ -18,6 +18,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final passwordController = TextEditingController();
 
   bool _isLoading = false;
+  bool _obscurePassword = true;
 
   Future<void> _login() async {
     final email = emailController.text.trim();
@@ -42,7 +43,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           backgroundColor: Colors.green,
         ),
       );
-      // Redirect automatically handled by routerProvider
+      // Redirect handled by routerProvider
     } catch (e) {
       rootScaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(
@@ -113,9 +114,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   controller: emailController,
                   decoration: InputDecoration(
                     labelText: "Email",
-                    prefixIcon: const Icon(
-                      Icons.email_outlined,
+                    prefixIcon: Icon(
+                      PhosphorIconsRegular.paperPlaneRight,
                       color: AppTheme.lavender,
+                      size: 20,
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -138,12 +140,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 // 🔑 Password
                 TextFormField(
                   controller: passwordController,
-                  obscureText: true,
+                  obscureText: _obscurePassword,
                   decoration: InputDecoration(
                     labelText: "Password",
-                    prefixIcon: const Icon(
-                      Icons.lock_outline,
+                    prefixIcon: Icon(
+                      PhosphorIconsRegular.key,
                       color: AppTheme.lavender,
+                      size: 20,
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? PhosphorIconsRegular.eyeClosed
+                            : PhosphorIconsRegular.eyes,
+                        color: Colors.grey,
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        setState(() => _obscurePassword = !_obscurePassword);
+                      },
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
