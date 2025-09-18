@@ -19,7 +19,6 @@ Future<void> main() async {
   runApp(const ProviderScope(child: AppEntry()));
 }
 
-/// 🔹 AppEntry → pehle Splash dikhata hai (sirf ek dafa app start hone par)
 class AppEntry extends StatefulWidget {
   const AppEntry({super.key});
 
@@ -33,8 +32,7 @@ class _AppEntryState extends State<AppEntry> {
   @override
   void initState() {
     super.initState();
-    // 2s ke liye splash dikhana
-    Future.delayed(const Duration(seconds: 2), () {
+    Future.delayed(const Duration(seconds: 3), () {
       if (mounted) setState(() => _showSplash = false);
     });
   }
@@ -48,7 +46,7 @@ class _AppEntryState extends State<AppEntry> {
       );
     }
 
-    return const ZonifyProApp(); // ⬅️ sirf ek hi ProviderScope upar hai
+    return const ZonifyProApp();
   }
 }
 
